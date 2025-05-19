@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IDSC Portal - Grades</title>
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script>tailwind.config={theme:{extend:{colors:{primary:'#2E7D32',secondary:'#43A047'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+<style>
+:where([class^="ri-"])::before { content: "\f3c2"; }
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8faf8;
+    min-height: 100vh;
+}
+.sidebar {
+    width: 280px;
+    transition: all 0.3s;
+}
+.main-content {
+    transition: all 0.3s;
+}
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+        position: fixed;
+        z-index: 40;
+    }
+    .sidebar.active {
+        transform: translateX(0);
+    }
+}
+.circular-progress {
+    position: relative;
+    height: 60px;
+    width: 60px;
+    border-radius: 50%;
+    background: conic-gradient(#2E7D32 var(--progress), #e6e6e6 0deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.circular-progress::before {
+    content: "";
+    position: absolute;
+    height: 45px;
+    width: 45px;
+    border-radius: 50%;
+    background-color: white;
+}
+.progress-value {
+    position: relative;
+    font-size: 16px;
+    font-weight: 600;
+    color: #2E7D32;
+}
+.grade-card {
+    transition: all 0.2s ease-in-out;
+}
+.grade-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+.progress-bar {
+    height: 8px;
+    border-radius: 4px;
+    background-color: #e6e6e6;
+    overflow: hidden;
+}
+.progress-bar-fill {
+    height: 100%;
+    background-color: #2E7D32;
+    transition: width 0.5s ease;
+}
+.grade-breakdown {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+.grade-breakdown.active {
+    max-height: 500px;
+}
+.custom-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #d1d5db;
+    border-radius: 4px;
+    outline: none;
+    cursor: pointer;
+    position: relative;
+    background-color: white;
+}
+.custom-checkbox:checked {
+    background-color: #2E7D32;
+    border-color: #2E7D32;
+}
+.custom-checkbox:checked::after {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 6px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+.custom-radio {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #d1d5db;
+    border-radius: 50%;
+    outline: none;
+    cursor: pointer;
+    position: relative;
+    background-color: white;
+}
+.custom-radio:checked {
+    border-color: #2E7D32;
+}
+.custom-radio:checked::after {
+    content: '';
+    position: absolute;
+    left: 3px;
+    top: 3px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #2E7D32;
+}
+.custom-switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 22px;
+}
+.custom-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+.switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+input:checked + .switch-slider {
+    background-color: #2E7D32;
+}
+input:checked + .switch-slider:before {
+    transform: translateX(18px);
+}
+</style>
+</head>
+<body class="bg-gray-50">
+<div class="min-h-screen flex">
+    <aside class="sidebar bg-white shadow-lg flex flex-col h-screen fixed">
+        <div class="p-6 border-b">
+            <h2 class="font-['Pacifico'] text-2xl text-primary text-center">IDSC</h2>
+        </div>
+        <div class="p-4 border-b bg-gray-50">
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white">
+                    <i class="ri-user-line ri-lg"></i>
+                </div>
+                <div>
+                    <h3 class="font-medium text-gray-800">Mark Mendoza</h3>
+                    <p class="text-sm text-gray-500">Student ID: 23-285</p>
+                </div>
+            </div>
+        </div>
+        <nav class="flex-1 p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="student-dashboard.html" data-readdy="true" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-dashboard-line"></i>
+                        </div>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="Student-Classes.html" data-readdy="true" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-book-open-line"></i>
+                        </div>
+                        <span>My Classes</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded bg-primary text-white">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-medal-line"></i>
+                        </div>
+                        <span>Grades</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="Student-Schedules.html" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-calendar-line"></i>
+                        </div>
+                        <span>Schedule</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="Student-Payments.html" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-money-dollar-circle-line"></i>
+                        </div>
+                        <span>Payments</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="p-4 border-t">
+            <a href="Index.html"><button class="flex items-center justify-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 rounded !rounded-button">
+                <i class="ri-logout-box-line mr-2"></i>
+                <span>Sign Out</span>
+                </button></a>
+        </div>
+    </aside>
+
+    <main class="main-content flex-1 ml-[280px]">
+        <header class="bg-white shadow-sm border-b">
+            <div class="flex items-center justify-between px-6 py-4">
+                <button class="md:hidden w-8 h-8 flex items-center justify-center text-gray-500" id="menuToggle">
+                    <i class="ri-menu-line ri-lg"></i>
+                </button>
+                <div class="flex items-center space-x-3">
+                    <h1 class="text-xl font-semibold text-gray-800">Grades</h1>
+                    <span class="px-2 py-1 text-sm bg-green-100 text-primary rounded">Spring 2025</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-full relative">
+                        <i class="ri-notification-3-line"></i>
+                        <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                    </button>
+                    <button class="md:hidden w-8 h-8 flex items-center justify-center text-gray-500">
+                        <i class="ri-user-line"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="px-6 py-2 border-t flex items-center text-sm text-gray-500">
+                <a href="#" class="hover:text-primary">Home</a>
+                <i class="ri-arrow-right-s-line mx-2"></i>
+                <span class="text-primary">Grades</span>
+            </div>
+        </header>
+
+        <div class="p-6">
+            <div class="flex flex-col md:flex-row gap-6 mb-6">
+                <!-- Semester Overview Card -->
+                <div class="bg-white rounded-lg shadow-sm border p-6 flex-1">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-800">Semester Overview</h2>
+                            <p class="text-sm text-gray-500">Spring 2025 • 18 Credit Hours</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="text-gray-500 hover:text-primary">
+                                <i class="ri-download-line ri-lg"></i>
+                            </button>
+                            <button class="text-gray-500 hover:text-primary">
+                                <i class="ri-more-2-fill ri-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col md:flex-row gap-6">
+                        <div class="flex-1">
+                            <div class="flex items-center justify-center mb-4">
+                                <div class="relative w-40 h-40">
+                                    <div class="w-full h-full rounded-full border-[16px] border-gray-100"></div>
+                                    <div class="absolute top-0 left-0 w-full h-full rounded-full border-[16px] border-primary border-t-transparent border-r-transparent" style="transform: rotate(45deg);"></div>
+                                    <div class="absolute top-0 left-0 w-full h-full flex items-center justify-center flex-col">
+                                        <span class="text-4xl font-bold text-gray-800">3.7</span>
+                                        <span class="text-sm text-gray-500">Current GPA</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm font-medium text-gray-700">Academic Standing</span>
+                                <span class="text-sm font-semibold text-primary">Excellent</span>
+                            </div>
+                            
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-700">Previous Semester</span>
+                                <span class="text-sm font-semibold text-gray-800">3.5 GPA</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex-1">
+                            <div id="gpaChart" class="w-full h-[180px]"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Stats -->
+                <div class="bg-white rounded-lg shadow-sm border p-6 w-full md:w-80">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Quick Stats</h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-sm font-medium text-gray-700">A Grades</span>
+                                <span class="text-sm font-semibold text-gray-800">4 Courses</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill bg-primary" style="width: 67%;"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-sm font-medium text-gray-700">B Grades</span>
+                                <span class="text-sm font-semibold text-gray-800">2 Courses</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill bg-blue-500" style="width: 33%;"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-sm font-medium text-gray-700">Credits Completed</span>
+                                <span class="text-sm font-semibold text-gray-800">54 / 120</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill bg-amber-500" style="width: 45%;"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="pt-2 border-t">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-700">Dean's List Status</span>
+                                <span class="px-2 py-1 text-xs bg-green-100 text-primary rounded-full">Qualified</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-800">Course Grades</h2>
+                    <p class="text-sm text-gray-500">Spring Semester 2025 • 6 Courses</p>
+                </div>
+                <div class="flex space-x-3">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="ri-search-line text-gray-400"></i>
+                        </div>
+                        <input type="text" placeholder="Search courses" class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                    </div>
+                    
+                    <div class="relative">
+                        <select class="appearance-none pl-4 pr-10 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white">
+                            <option>Current Semester</option>
+                            <option>Fall 2024</option>
+                            <option>Spring 2024</option>
+                            <option>All Semesters</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                            <i class="ri-arrow-down-s-line text-gray-400"></i>
+                        </div>
+                    </div>
+                    
+                    <button class="flex items-center space-x-2 bg-primary text-white px-4 py-2 rounded !rounded-button hover:bg-primary/90 whitespace-nowrap">
+                        <i class="ri-download-line"></i>
+                        <span>Export</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Course 1 -->
+                <div class="grade-card bg-white rounded-lg shadow-sm border overflow-hidden">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-semibold text-gray-800 text-lg">Advanced Mathematics</h3>
+                                <p class="text-sm text-gray-500">MATH 301 • Dr. Robert Chen</p>
+                            </div>
+                            <div class="circular-progress" style="--progress: 324deg">
+                                <span class="progress-value">90%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-3 mb-4">
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Assignments (30%)</span>
+                                    <span class="text-sm font-semibold text-gray-800">92%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill" style="width: 92%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Exams (50%)</span>
+                                    <span class="text-sm font-semibold text-gray-800">88%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill" style="width: 88%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Participation (20%)</span>
+                                    <span class="text-sm font-semibold text-gray-800">95%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill" style="width: 95%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm font-medium text-gray-700">Class Average:</span>
+                                <span class="text-sm font-semibold text-gray-800">82%</span>
+                                <span class="px-2 py-0.5 text-xs bg-green-100 text-primary rounded-full">+8%</span>
+                            </div>
+                            
+                            <button class="text-primary hover:text-primary/80 text-sm font-medium toggle-details" data-target="course1">
+                                <span class="show-text">Show Details</span>
+                                <span class="hide-text hidden">Hide Details</span>
+                                <i class="ri-arrow-down-s-line ml-1 toggle-icon"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="grade-breakdown mt-4 pt-4 border-t" id="course1">
+                            <h4 class="font-medium text-gray-800 mb-3">Detailed Breakdown</h4>
+                            
+                            <div class="space-y-3">
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-medium">Midterm Exam</span>
+                                        <span class="text-sm font-semibold">86/100</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500">Completed on March 15, 2025</div>
+                                </div>
+                                
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-medium">Final Exam</span>
+                                        <span class="text-sm font-semibold">90/100</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500">Completed on May 1, 2025</div>
+                                </div>
+                                
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-medium">Assignment 1</span>
+                                        <span class="text-sm font-semibold">94/100</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500">Submitted on February 10, 2025</div>
+                                </div>
+                                
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-medium">Assignment 2</span>
+                                        <span class="text-sm font-semibold">90/100</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500">Submitted on March 5, 2025</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Course 2 -->
+                <div class="grade-card bg-white rounded-lg shadow-sm border overflow-hidden">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-semibold text-gray-800 text-lg">Computer Science</h3>
+                                <p class="text-sm text-gray-500">CS 250 • Prof. Emily Johnson</p>
+                            </div>
+                            <div class="circular-progress" style="--progress: 342deg">
+                                <span class="progress-value">95%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-3 mb-4">
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Assignments (40%)</span>
+                                    <span class="text-sm font-semibold text-gray-800">97%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill" style="width: 97%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Exams (40%)</span>
+                                    <span class="text-sm font-semibold text-gray-800">94%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill" style="width: 94%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Participation (20%)</span>
+                                    <span class="text-sm font-semibold text-gray-800">92%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill" style="width: 92%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm font-medium text-gray-700">Class Average:</span>
+                                <span class="text-sm font-semibold text-gray-800">85%</span>
+                                <span class="px-2 py-0.5 text-xs bg-green-100 text-primary rounded-full">+10%</span>
+                            </div>
+                            
+                            <button class="text-primary hover:text-primary/80 text-sm font-medium toggle-details" data-target="course2">
+                                <span class="show-text">Show Details</span>
+                                <span class="hide-text hidden">Hide Details</span>
+                                <i class="ri-arrow-down-s-line ml-1 toggle-icon"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="grade-breakdown mt-4 pt-4 border-t" id="course2">
+                            <h4 class="font-medium text-gray-800 mb-3">Detailed Breakdown</h4>
+                            
+                            <div class="space-y-3">
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-medium">Midterm Exam</span>
+                                        <span class="text-sm font-semibold">92/100</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500">Completed on March 12, 2025</div>
+                                </div>
+                                
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-medium">Final Project</span>
+                                        <span class="text-sm font-semibold">96/100</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500">Submitted on April 28, 2025</div>
+                                </div>
+                                
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-medium">Programming Assignment 1</span>
+                                        <span class="text-sm font-semibold">98/100</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500">Submitted on February 8, 2025</div>
+                                </div>
+                                
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-medium">Programming Assignment 2</span>
+                                        <span class="text-sm font-semibold">95/100</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500">Submitted on March 1, 2025</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Course 3 -->
+                <div class="grade-card bg-white rounded-lg shadow-sm border overflow-hidden">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-semibold text-gray-800 text-lg">English Literature</h3>
+                                <p class="text-sm text-gray-500">ENG 215 • Dr. Michael Thompson</p>
+                            </div>
+                            <div class="circular-progress" style="--progress: 288deg">
+                                <span class="progress-value">80%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-3 mb-4">
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Essays (60%)</span>
+                                    <span class="text-sm font-semibold text-gray-800">78%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill" style="width: 78%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Exams (30%)</span>
+                                    <span class="text-sm font-semibold text-gray-800">85%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill" style="width: 85%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Participation (10%)</span>
+                                    <span class="text-sm font-semibold text-gray-800">80%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill" style="width: 80%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm font-medium text-gray-700">Class Average:</span>
+                                <span class="text-sm font-semibold text-gray-800">76%</span>
+                                <span class="px-2 py-0.5 text-xs bg-green-100 text-primary rounded-full">+4%</span>
+                            </div>
+                            
+                            <button class="text-primary hover:text-primary/80 text-sm font-medium toggle-details" data-target="course3">
+                                <span class="show-text">Show Details</span>
+                                <span class="hide-text hidden">Hide Details</span>
+                                <i class="ri-arrow-down-s-line ml-1 toggle-icon"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="grade-breakdown mt-4 pt-4 border-t" id="course3">
+                            <h4 class="font-medium text-gray-800 mb-3">Detailed Breakdown</h4>
+                            
+                            <div class="space-y-3">
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-medium">Midterm Essay</span>
+                                        <span class="text-sm font-semibold">76/100</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500">Submitted on March 10, 2025</div>
+                                </div>
+                                
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-medium">Final Essay</span>
+                                        <span class="text-sm font-semibold">82/100</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500">Submitted on April 25, 2025</div>
+                                </div>
+                                
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-medium">Book Analysis</span>
+                                        <span class="text-sm font-semibold">78/100</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500">Submitted on February 20, 2025</div>
+                                </div>
+                                
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-medium">Class Participation</span>
+                                        <span class="text-sm font-semibold">80/100</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500">Ongoing assessment</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Course 4 -->
+                <div class="grade-card bg-white rounded-lg shadow-sm border overflow-hidden">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-semibold text-gray-800 text-lg">Introduction to Psychology</h3>
+                                <p class="text-sm text-gray-500">PSYC 101 • Dr. Sophia Martinez</p>
+                            </div>
+                            <div class="circular-progress" style="--progress: 252deg">
+                                <span class="progress-value">70%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-3 mb-4">
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Assignments (25%)</span>
+                                    <span class="text-sm font-semibold text-gray-800">72%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill" style="width: 72%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Exams (50%)</span>
+                                    <span class="text-sm font-semibold text-gray-800">68%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill" style="width: 68%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Research Project (25%)</span>
+                                    <span class="text-sm font-semibold text-gray-800">74%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill" style="width: 74%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm font-medium text-gray-700">Class Average:</span>
+                                <span class="text-sm font-semibold text-gray-800">72%</span>
+                                <span class="px-2 py-0.5 text-xs bg-amber-100 text-amber-700 rounded-full">-2%</span>
+                            </div>
+                            
+                            <button class="text-primary hover:text-primary/80 text-sm font-medium toggle-details" data-target="course4">
+                                <span class="show-text">Show Details</span>
+                                <span class="hide-text hidden">Hide Details</span>
+                                <i class="ri-arrow-down-s-line ml-1 toggle-icon"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="grade-breakdown mt-4 pt-4 border-t" id="course4">
+                            <h4 class="font-medium text-gray-800 mb-3">Detailed Breakdown</h4>
+                            
+                            <div class="space-y-3">
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-medium">Midterm Exam</span>
+                                        <span class="text-sm font-semibold">65/100</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500">Completed on March 8, 2025</div>
+                                </div>
+                                
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-medium">Final Exam</span>
+                                        <span class="text-sm font-semibold">71/100</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500">Completed on April 30, 2025</div>
+                                </div>
+                                
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-medium">Research Paper</span>
+                                        <span class="text-sm font-semibold">74/100</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500">Submitted on April 15, 2025</div>
+                                </div>
+                                
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-medium">Weekly Quizzes (Average)</span>
+                                        <span class="text-sm font-semibold">72/100</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500">Ongoing assessment</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Course 5 -->
+                <div class="grade-card bg-white rounded-lg shadow-sm border overflow-hidden">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-semibold text-gray-800 text-lg">Physics for Engineers</h3>
+                                <p class="text-sm text-gray-500">PHYS 205 • Prof. David Wilson</p>
+                            </div>
+                            <div class="circular-progress" style="--progress: 306deg">
+                                <span class="progress-value">85%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-3 mb-4">
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Lab Work (30%)</span>
+                                    <span class="text-sm font-semibold text-gray-800">88%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill" style="width: 88%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Exams (50%)</span>
+                                    <span class="text-sm font-semibold text-gray-800">84%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill" style="width: 84%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Homework (20%)</span>
+                                    <span class="text-sm font-semibold text-gray-800">83%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill" style="width: 83%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm font-medium text-gray-700">Class Average:</span>
+                                <span class="text-sm font-semibold text-gray-800">79%</span>
+                                <span class="px-2 py-0.5 text-xs bg-green-100 text-primary rounded-full">+6%</span>
+                            </div>
+                            
+                            <button class="text-primary hover:text-primary/80 text-sm font-medium toggle-details" data-target="course5">
+                                <span class="show-text">Show Details</span>
+                                <span class="hide-text hidden">Hide Details</span>
+                                <i class="ri-arrow-down-s-line ml-1 toggle-icon"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="grade-breakdown mt-4 pt-4 border-t" id="course5">
+                            <h4 class="font-medium text-gray-800 mb-3">Detailed Breakdown</h4>
+                            
+                            <div class="space-y-3">
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-medium">Midterm Exam</span>
+                                        <span class="text-sm font-semibold">82/100</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500">Completed on March 5, 2025</div>
+                                </div>
+                                
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-medium">Final Exam</span>
+                                        <span class="text-sm font-semibold">86/100</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500">Completed on April 28, 2025</div>
+                                </div>
+                                
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-medium">Lab Report 1</span>
+                                        <span class="text-sm font-semibold">90/100</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500">Submitted on February 15, 2025</div>
+                                </div>
+                                
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-medium">Lab Report 2</span>
+                                        <span class="text-sm font-semibold">86/100</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500">Submitted on March 20, 2025</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Course 6 -->
+                <div class="grade-card bg-white rounded-lg shadow-sm border overflow-hidden">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-semibold text-gray-800 text-lg">Business Economics</h3>
+                                <p class="text-sm text-gray-500">ECON 210 • Dr. Jennifer Williams</p>
+                            </div>
+                            <div class="circular-progress" style="--progress: 234deg">
+                                <span class="progress-value">65%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-3 mb-4">
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Case Studies (40%)</span>
+                                    <span class="text-sm font-semibold text-gray-800">62%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill" style="width: 62%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Exams (40%)</span>
+                                    <span class="text-sm font-semibold text-gray-800">68%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill" style="width: 68%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Participation (20%)</span>
+                                    <span class="text-sm font-semibold text-gray-800">65%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill" style="width: 65%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm font-medium text-gray-700">Class Average:</span>
+                                <span class="text-sm font-semibold text-gray-800">70%</span>
+                                <span class="px-2 py-0.5 text-xs bg-red-100 text-red-700 rounded-full">-5%</span>
+                            </div>
+                            
+                            <button class="text-primary hover:text-primary/80 text-sm font-medium toggle-details" data-target="course6">
+                                <span class="show-text">Show Details</span>
+                                <span class="hide-text hidden">Hide Details</span>
+                                <i class="ri-arrow-down-s-line ml-1 toggle-icon"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="grade-breakdown mt-4 pt-4 border-t" id="course6">
+                            <h4 class="font-medium text-gray-800 mb-3">Detailed Breakdown</h4>
+                            
+                            <div class="space-y-3">
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-medium">Midterm Exam</span>
+                                        <span class="text-sm font-semibold">64/100</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500">Completed on March 12, 2025</div>
+                                </div>
+                                
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-medium">Final Exam</span>
+                                        <span class="text-sm font-semibold">72/100</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500">Completed on May 2, 2025</div>
+                                </div>
+                                
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-medium">Market Analysis Case Study</span>
+                                        <span class="text-sm font-semibold">60/100</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500">Submitted on February 25, 2025</div>
+                                </div>
+                                
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-medium">Economic Policy Analysis</span>
+                                        <span class="text-sm font-semibold">64/100</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500">Submitted on April 10, 2025</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-8">
+                <div class="bg-white rounded-lg shadow-sm border overflow-hidden p-6">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-800">Performance Analytics</h2>
+                            <p class="text-sm text-gray-500">Grade distribution and trends</p>
+                        </div>
+                        <div class="flex space-x-3">
+                            <div class="relative">
+                                <select class="appearance-none pl-4 pr-10 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white">
+                                    <option>All Courses</option>
+                                    <option>Core Courses</option>
+                                    <option>Electives</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <i class="ri-arrow-down-s-line text-gray-400"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-800 mb-4">Grade Distribution</h3>
+                            <div id="gradeDistributionChart" class="w-full h-[300px]"></div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-800 mb-4">Performance Trend</h3>
+                            <div id="performanceTrendChart" class="w-full h-[300px]"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 pt-6 border-t">
+                        <h3 class="text-lg font-medium text-gray-800 mb-4">Academic Achievements</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                                <div class="flex items-center space-x-3 mb-2">
+                                    <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                                        <i class="ri-medal-line ri-lg"></i>
+                                    </div>
+                                    <h4 class="font-medium text-gray-800">Dean's List</h4>
+                                </div>
+                                <p class="text-sm text-gray-600">Qualified for Spring 2025 Dean's List with GPA above 3.5</p>
+                            </div>
+                            
+                            <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                                <div class="flex items-center space-x-3 mb-2">
+                                    <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+                                        <i class="ri-trophy-line ri-lg"></i>
+                                    </div>
+                                    <h4 class="font-medium text-gray-800">Top Performer</h4>
+                                </div>
+                                <p class="text-sm text-gray-600">Top 5% in Computer Science class for Spring 2025</p>
+                            </div>
+                            
+                            <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                                <div class="flex items-center space-x-3 mb-2">
+                                    <div class="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center text-amber-600">
+                                        <i class="ri-star-line ri-lg"></i>
+                                    </div>
+                                    <h4 class="font-medium text-gray-800">Perfect Attendance</h4>
+                                </div>
+                                <p class="text-sm text-gray-600">100% attendance record for all classes this semester</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.querySelector('.sidebar');
+
+    menuToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('active');
+    });
+
+    document.addEventListener('click', function(event) {
+        const isClickInside = sidebar.contains(event.target) || menuToggle.contains(event.target);
+        if (!isClickInside && window.innerWidth < 768 && sidebar.classList.contains('active')) {
+            sidebar.classList.remove('active');
+        }
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleButtons = document.querySelectorAll('.toggle-details');
+    
+    toggleButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const targetElement = document.getElementById(targetId);
+            targetElement.classList.toggle('active');
+            
+            const showText = this.querySelector('.show-text');
+            const hideText = this.querySelector('.hide-text');
+            const toggleIcon = this.querySelector('.toggle-icon');
+            
+            if (targetElement.classList.contains('active')) {
+                showText.classList.add('hidden');
+                hideText.classList.remove('hidden');
+                toggleIcon.style.transform = 'rotate(180deg)';
+            } else {
+                showText.classList.remove('hidden');
+                hideText.classList.add('hidden');
+                toggleIcon.style.transform = 'rotate(0)';
+            }
+        });
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    // GPA Chart
+    const gpaChartDom = document.getElementById('gpaChart');
+    const gpaChart = echarts.init(gpaChartDom);
+    const gpaOption = {
+        animation: false,
+        grid: {
+            top: 10,
+            right: 10,
+            bottom: 20,
+            left: 40
+        },
+        xAxis: {
+            type: 'category',
+            data: ['Fall 2023', 'Spring 2024', 'Fall 2024', 'Spring 2025'],
+            axisLine: {
+                lineStyle: {
+                    color: '#e5e7eb'
+                }
+            },
+            axisLabel: {
+                color: '#6b7280',
+                fontSize: 10
+            }
+        },
+        yAxis: {
+            type: 'value',
+            min: 2.5,
+            max: 4.0,
+            interval: 0.5,
+            axisLine: {
+                show: false
+            },
+            axisLabel: {
+                color: '#6b7280',
+                fontSize: 10
+            },
+            splitLine: {
+                lineStyle: {
+                    color: '#f3f4f6'
+                }
+            }
+        },
+        series: [{
+            data: [3.2, 3.5, 3.6, 3.7],
+            type: 'line',
+            smooth: true,
+            symbol: 'circle',
+            symbolSize: 8,
+            lineStyle: {
+                width: 3,
+                color: 'rgba(87, 181, 231, 1)'
+            },
+            itemStyle: {
+                color: 'rgba(87, 181, 231, 1)',
+                borderWidth: 2,
+                borderColor: '#ffffff'
+            },
+            areaStyle: {
+                color: {
+                    type: 'linear',
+                    x: 0,
+                    y: 0,
+                    x2: 0,
+                    y2: 1,
+                    colorStops: [{
+                        offset: 0,
+                        color: 'rgba(87, 181, 231, 0.2)'
+                    }, {
+                        offset: 1,
+                        color: 'rgba(87, 181, 231, 0.01)'
+                    }]
+                }
+            }
+        }],
+        tooltip: {
+            trigger: 'axis',
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            borderColor: '#e5e7eb',
+            borderWidth: 1,
+            textStyle: {
+                color: '#1f2937'
+            },
+            formatter: function(params) {
+                return params[0].name + ': ' + params[0].value + ' GPA';
+            }
+        }
+    };
+    gpaChart.setOption(gpaOption);
+
+    // Grade Distribution Chart
+    const gradeDistChartDom = document.getElementById('gradeDistributionChart');
+    const gradeDistChart = echarts.init(gradeDistChartDom);
+    const gradeDistOption = {
+        animation: false,
+        grid: {
+            top: 10,
+            right: 10,
+            bottom: 30,
+            left: 40
+        },
+        xAxis: {
+            type: 'category',
+            data: ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D', 'F'],
+            axisLine: {
+                lineStyle: {
+                    color: '#e5e7eb'
+                }
+            },
+            axisLabel: {
+                color: '#6b7280'
+            }
+        },
+        yAxis: {
+            type: 'value',
+            axisLine: {
+                show: false
+            },
+            axisLabel: {
+                color: '#6b7280'
+            },
+            splitLine: {
+                lineStyle: {
+                    color: '#f3f4f6'
+                }
+            }
+        },
+        series: [
+            {
+                name: 'Your Grades',
+                type: 'bar',
+                data: [1, 3, 0, 1, 1, 0, 0, 0, 0, 0, 0],
+                itemStyle: {
+                    color: 'rgba(87, 181, 231, 1)',
+                    borderRadius: 4
+                }
+            },
+            {
+                name: 'Class Average',
+                type: 'bar',
+                data: [0, 1, 2, 2, 3, 2, 1, 1, 0, 0, 0],
+                itemStyle: {
+                    color: 'rgba(141, 211, 199, 1)',
+                    borderRadius: 4
+                }
+            }
+        ],
+        tooltip: {
+            trigger: 'axis',
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            borderColor: '#e5e7eb',
+            borderWidth: 1,
+            textStyle: {
+                color: '#1f2937'
+            }
+        },
+        legend: {
+            data: ['Your Grades', 'Class Average'],
+            bottom: 0,
+            textStyle: {
+                color: '#6b7280'
+            }
+        }
+    };
+    gradeDistChart.setOption(gradeDistOption);
+
+    // Performance Trend Chart
+    const perfTrendChartDom = document.getElementById('performanceTrendChart');
+    const perfTrendChart = echarts.init(perfTrendChartDom);
+    const perfTrendOption = {
+        animation: false,
+        grid: {
+            top: 10,
+            right: 10,
+            bottom: 30,
+            left: 40
+        },
+        xAxis: {
+            type: 'category',
+            data: ['Feb', 'Mar', 'Apr', 'May'],
+            axisLine: {
+                lineStyle: {
+                    color: '#e5e7eb'
+                }
+            },
+            axisLabel: {
+                color: '#6b7280'
+            }
+        },
+        yAxis: {
+            type: 'value',
+            min: 60,
+            max: 100,
+            axisLine: {
+                show: false
+            },
+            axisLabel: {
+                color: '#6b7280'
+            },
+            splitLine: {
+                lineStyle: {
+                    color: '#f3f4f6'
+                }
+            }
+        },
+        series: [
+            {
+                name: 'Advanced Mathematics',
+                type: 'line',
+                data: [85, 88, 90, 90],
+                smooth: true,
+                symbol: 'none',
+                lineStyle: {
+                    width: 3,
+                    color: 'rgba(87, 181, 231, 1)'
+                }
+            },
+            {
+                name: 'Computer Science',
+                type: 'line',
+                data: [92, 94, 95, 95],
+                smooth: true,
+                symbol: 'none',
+                lineStyle: {
+                    width: 3,
+                    color: 'rgba(141, 211, 199, 1)'
+                }
+            },
+            {
+                name: 'English Literature',
+                type: 'line',
+                data: [75, 78, 80, 80],
+                smooth: true,
+                symbol: 'none',
+                lineStyle: {
+                    width: 3,
+                    color: 'rgba(251, 191, 114, 1)'
+                }
+            },
+            {
+                name: 'Psychology',
+                type: 'line',
+                data: [68, 70, 70, 70],
+                smooth: true,
+                symbol: 'none',
+                lineStyle: {
+                    width: 3,
+                    color: 'rgba(252, 141, 98, 1)'
+                }
+            }
+        ],
+        tooltip: {
+            trigger: 'axis',
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            borderColor: '#e5e7eb',
+            borderWidth: 1,
+            textStyle: {
+                color: '#1f2937'
+            }
+        },
+        legend: {
+            data: ['Advanced Mathematics', 'Computer Science', 'English Literature', 'Psychology'],
+            bottom: 0,
+            textStyle: {
+                color: '#6b7280'
+            }
+        }
+    };
+    perfTrendChart.setOption(perfTrendOption);
+
+    // Resize charts when window is resized
+    window.addEventListener('resize', function() {
+        gpaChart.resize();
+        gradeDistChart.resize();
+        perfTrendChart.resize();
+    });
+});
+</script>
+</body>
+</html>

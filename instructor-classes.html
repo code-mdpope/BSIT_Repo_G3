@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IDSC Portal - Instructor Classes</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>tailwind.config={theme:{extend:{colors:{primary:'#2E7D32',secondary:'#43A047'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+    <style>
+        :where([class^="ri-"])::before { content: "\f3c2"; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8faf8;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 280px;
+            transition: all 0.3s;
+        }
+        .main-content {
+            transition: all 0.3s;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                z-index: 40;
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+        }
+        .class-card {
+            transition: all 0.2s ease-in-out;
+        }
+        .class-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .circular-progress {
+            position: relative;
+            height: 60px;
+            width: 60px;
+            border-radius: 50%;
+            background: conic-gradient(#2E7D32 var(--progress), #e6e6e6 0deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .circular-progress::before {
+            content: "";
+            position: absolute;
+            height: 45px;
+            width: 45px;
+            border-radius: 50%;
+            background-color: white;
+        }
+        .progress-value {
+            position: relative;
+            font-size: 16px;
+            font-weight: 600;
+            color: #2E7D32;
+        }
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e6e6e6;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background-color: #2E7D32;
+            transition: width 0.5s ease;
+        }
+        .tab-active {
+            color: #2E7D32;
+            border-bottom: 2px solid #2E7D32;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+<div class="min-h-screen flex">
+    <aside class="sidebar bg-white shadow-lg flex flex-col h-screen fixed">
+        <div class="p-6 border-b">
+            <h2 class="font-['Pacifico'] text-2xl text-primary text-center">IDSC</h2>
+        </div>
+        <div class="p-4 border-b bg-gray-50">
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white">
+                    <i class="ri-user-line ri-lg"></i>
+                </div>
+                <div>
+                    <h3 class="font-medium text-gray-800">Dr. Robert Chen</h3>
+                    <p class="text-sm text-gray-500">Instructor ID: INS-2025103</p>
+                </div>
+            </div>
+        </div>
+        <nav class="flex-1 p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="instructor-dashboard.html" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-dashboard-line"></i>
+                        </div>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded bg-primary text-white">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-book-open-line"></i>
+                        </div>
+                        <span>My Classes</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="instructor-students.html" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-user-star-line"></i>
+                        </div>
+                        <span>Students</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="instructor-grades.html" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-file-list-3-line"></i>
+                        </div>
+                        <span>Grade Management</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="instructor-announcements.html" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-megaphone-line"></i>
+                        </div>
+                        <span>Announcements</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="instructor-schedule.html" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-calendar-line"></i>
+                        </div>
+                        <span>Schedule</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="p-4 border-t">
+            <a href="Index.html"><button class="flex items-center justify-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 rounded !rounded-button">
+                <i class="ri-logout-box-line mr-2"></i>
+                <span>Sign Out</span>
+            </button></a>
+        </div>
+    </aside>
+    <main class="flex-1 p-8">
+        <h1 class="text-2xl font-semibold mb-6">My Classes</h1>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Mathematical Modeling -->
+            <div class="class-card bg-white rounded-lg shadow-sm border overflow-hidden">
+                <div class="h-3 bg-primary"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="font-semibold text-gray-800 text-lg">Mathematical Modeling</h3>
+                            <p class="text-sm text-gray-500">MATH 350 • Tuesday, Thursday</p>
+                        </div>
+                        <span class="px-2 py-1 bg-green-100 text-primary text-xs rounded-full">Active</span>
+                    </div>
+                    
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-center text-gray-700">
+                            <div class="w-6 h-6 flex items-center justify-center mr-2">
+                                <i class="ri-user-line text-primary"></i>
+                            </div>
+                            <span>18 Students Enrolled</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <div class="w-6 h-6 flex items-center justify-center mr-2">
+                                <i class="ri-time-line text-primary"></i>
+                            </div>
+                            <span>1:00 PM - 2:30 PM</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <div class="w-6 h-6 flex items-center justify-center mr-2">
+                                <i class="ri-map-pin-line text-primary"></i>
+                            </div>
+                            <span>Room 301, Science Building</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3 mb-6">
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-sm font-medium text-gray-700">Assignments</span>
+                                <span class="text-sm font-semibold text-gray-800">10 / 20</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill" style="width: 50%;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-sm font-medium text-gray-700">Attendance</span>
+                                <span class="text-sm font-semibold text-gray-800">90%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill" style="width: 90%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-2">
+                        <a href="#" class="flex items-center justify-center bg-primary text-white px-3 py-2 rounded !rounded-button hover:bg-primary/90 text-sm whitespace-nowrap">
+                            <i class="ri-file-list-3-line mr-1"></i>
+                            <span>Manage Class</span>
+                        </a>
+                        <a href="#" class="flex items-center justify-center bg-white text-primary border border-primary px-3 py-2 rounded !rounded-button hover:bg-green-50 text-sm whitespace-nowrap">
+                            <i class="ri-group-line mr-1"></i>
+                            <span>View Students</span>
+                        </a>
+                        <a href="#" class="flex items-center justify-center bg-white text-gray-700 border border-gray-300 px-3 py-2 rounded !rounded-button hover:bg-gray-50 text-sm whitespace-nowrap">
+                            <i class="ri-edit-line mr-1"></i>
+                            <span>Enter Grades</span>
+                        </a>
+                        <a href="#" class="flex items-center justify-center bg-white text-gray-700 border border-gray-300 px-3 py-2 rounded !rounded-button hover:bg-gray-50 text-sm whitespace-nowrap">
+                            <i class="ri-file-upload-line mr-1"></i>
+                            <span>Resources</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Differential Equations -->
+            <div class="class-card bg-white rounded-lg shadow-sm border overflow-hidden">
+                <div class="h-3 bg-primary"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="font-semibold text-gray-800 text-lg">Differential Equations</h3>
+                            <p class="text-sm text-gray-500">MATH 320 • Monday, Wednesday</p>
+                        </div>
+                        <span class="px-2 py-1 bg-green-100 text-primary text-xs rounded-full">Active</span>
+                    </div>
+                    
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-center text-gray-700">
+                            <div class="w-6 h-6 flex items-center justify-center mr-2">
+                                <i class="ri-user-line text-primary"></i>
+                            </div>
+                            <span>20 Students Enrolled</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <div class="w-6 h-6 flex items-center justify-center mr-2">
+                                <i class="ri-time-line text-primary"></i>
+                            </div>
+                            <span>3:30 PM - 5:00 PM</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <div class="w-6 h-6 flex items-center justify-center mr-2">
+                                <i class="ri-map-pin-line text-primary"></i>
+                            </div>
+                            <span>Room 302, Science Building</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3 mb-6">
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-sm font-medium text-gray-700">Assignments</span>
+                                <span class="text-sm font-semibold text-gray-800">12 / 25</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill" style="width: 48%;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-sm font-medium text-gray-700">Attendance</span>
+                                <span class="text-sm font-semibold text-gray-800">82%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill" style="width: 82%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-2">
+                        <a href="#" class="flex items-center justify-center bg-primary text-white px-3 py-2 rounded !rounded-button hover:bg-primary/90 text-sm whitespace-nowrap">
+                            <i class="ri-file-list-3-line mr-1"></i>
+                            <span>Manage Class</span>
+                        </a>
+                        <a href="#" class="flex items-center justify-center bg-white text-primary border border-primary px-3 py-2 rounded !rounded-button hover:bg-green-50 text-sm whitespace-nowrap">
+                            <i class="ri-group-line mr-1"></i>
+                            <span>View Students</span>
+                        </a>
+                        <a href="#" class="flex items-center justify-center bg-white text-gray-700 border border-gray-300 px-3 py-2 rounded !rounded-button hover:bg-gray-50 text-sm whitespace-nowrap">
+                            <i class="ri-edit-line mr-1"></i>
+                            <span>Enter Grades</span>
+                        </a>
+                        <a href="#" class="flex items-center justify-center bg-white text-gray-700 border border-gray-300 px-3 py-2 rounded !rounded-button hover:bg-gray-50 text-sm whitespace-nowrap">
+                            <i class="ri-file-upload-line mr-1"></i>
+                            <span>Resources</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Add Class Card -->
+            <div class="class-card bg-white rounded-lg shadow-sm border-dashed border-2 border-gray-300 flex flex-col items-center justify-center p-6" style="min-height: 440px;">
+                <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                    <i class="ri-add-line text-gray-500 ri-xl"></i>
+                </div>
+                <h3 class="font-medium text-gray-700 mb-2">Add New Class</h3>
+                <p class="text-sm text-gray-500 text-center mb-6">Create a new class or request a course assignment</p>
+                <button class="bg-white text-primary border border-primary px-4 py-2 rounded !rounded-button hover:bg-green-50 text-sm whitespace-nowrap">
+                    Request Assignment
+                </button>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.querySelector('.sidebar');
+        
+        menuToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+        });
+        
+        document.addEventListener('click', function(event) {
+            const isClickInside = sidebar.contains(event.target) || menuToggle.contains(event.target);
+            if (!isClickInside && window.innerWidth < 768 && sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+            }
+        });
+        
+        // Tab switching
+        const tabs = document.querySelectorAll('.border-b button');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs
+                tabs.forEach(t => {
+                    t.classList.remove('tab-active');
+                    t.classList.remove('text-primary');
+                    t.classList.remove('border-b-2');
+                    t.classList.remove('border-primary');
+                    t.classList.add('text-gray-600');
+                });
+                
+                // Add active class to clicked tab
+                this.classList.add('tab-active');
+                this.classList.add('text-primary');
+                this.classList.add('border-b-2');
+                this.classList.add('border-primary');
+                this.classList.remove('text-gray-600');
+                
+                // Here you would implement the logic to filter classes based on the selected tab
+                console.log(`Tab clicked: ${this.textContent.trim()}`);
+            });
+        });
+    });
+</script>
+</body>
+</html> 

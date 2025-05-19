@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IDSC Portal - Payments</title>
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script>tailwind.config={theme:{extend:{colors:{primary:'#2E7D32',secondary:'#43A047'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+<style>
+:where([class^="ri-"])::before { content: "\f3c2"; }
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8faf8;
+    min-height: 100vh;
+}
+.sidebar {
+    width: 280px;
+    transition: all 0.3s;
+}
+.main-content {
+    transition: all 0.3s;
+}
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+        position: fixed;
+        z-index: 40;
+    }
+    .sidebar.active {
+        transform: translateX(0);
+    }
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+.custom-checkbox {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #d1d5db;
+    border-radius: 4px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.custom-checkbox:checked {
+    background-color: #2E7D32;
+    border-color: #2E7D32;
+}
+.custom-checkbox:checked::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 5px;
+    width: 6px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+.custom-switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 22px;
+}
+.custom-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #e5e7eb;
+    transition: .4s;
+    border-radius: 34px;
+}
+.switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+input:checked + .switch-slider {
+    background-color: #2E7D32;
+}
+input:checked + .switch-slider:before {
+    transform: translateX(18px);
+}
+.payment-method-radio {
+    display: none;
+}
+.payment-method-label {
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.payment-method-radio:checked + .payment-method-label {
+    border-color: #2E7D32;
+    background-color: #f0f9f0;
+}
+.payment-method-radio:checked + .payment-method-label .check-icon {
+    display: flex;
+}
+.date-range-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    z-index: 10;
+}
+.date-range-dropdown.active {
+    display: block;
+}
+</style>
+</head>
+<body class="bg-gray-50">
+<div class="min-h-screen flex">
+    <aside class="sidebar bg-white shadow-lg flex flex-col h-screen fixed">
+        <div class="p-6 border-b">
+            <h2 class="font-['Pacifico'] text-2xl text-primary text-center">IDSC</h2>
+        </div>
+        <div class="p-4 border-b bg-gray-50">
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white">
+                    <i class="ri-user-line ri-lg"></i>
+                </div>
+                <div>
+                    <h3 class="font-medium text-gray-800">Sarah Anderson</h3>
+                    <p class="text-sm text-gray-500">Student ID: ST2025001</p>
+                </div>
+            </div>
+        </div>
+        <nav class="flex-1 p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="student-dashboard.html" data-readdy="true" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-dashboard-line"></i>
+                        </div>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="Student-Classes.html" data-readdy="true" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-book-open-line"></i>
+                        </div>
+                        <span>My Classes</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="Student-Grades.html" data-readdy="true" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-medal-line"></i>
+                        </div>
+                        <span>Grades</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="Student-Schedules.html" data-readdy="true" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-calendar-line"></i>
+                        </div>
+                        <span>Schedule</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded bg-primary text-white">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-money-dollar-circle-line"></i>
+                        </div>
+                        <span>Payments</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="p-4 border-t">
+            <button class="flex items-center justify-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 rounded !rounded-button whitespace-nowrap">
+                <i class="ri-logout-box-line mr-2"></i>
+                <span>Sign Out</span>
+            </button>
+        </div>
+    </aside>
+    <main class="main-content flex-1 ml-[280px]">
+        <header class="bg-white shadow-sm border-b">
+            <div class="flex items-center justify-between px-6 py-4">
+                <button class="md:hidden w-8 h-8 flex items-center justify-center text-gray-500" id="menuToggle">
+                    <i class="ri-menu-line ri-lg"></i>
+                </button>
+                <div class="flex items-center space-x-3">
+                    <h1 class="text-xl font-semibold text-gray-800">Payments</h1>
+                    <span class="px-2 py-1 text-sm bg-green-100 text-primary rounded">Spring 2025</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-full relative">
+                        <i class="ri-notification-3-line"></i>
+                        <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                    </button>
+                    <button class="md:hidden w-8 h-8 flex items-center justify-center text-gray-500">
+                        <i class="ri-user-line"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="border-t px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center space-x-4">
+                    <a href="https://readdy.ai/home/8b77e964-8742-462e-a9ab-49a51693b1a0/333bf590-1f88-443f-8f18-6cc6a1f74a30" data-readdy="true" class="flex items-center space-x-2 text-gray-700 hover:text-primary text-sm">
+                        <i class="ri-arrow-left-line"></i>
+                        <span>Back to Schedule</span>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button class="flex items-center space-x-2 bg-white border border-gray-300 text-gray-700 px-3 py-1.5 rounded !rounded-button hover:bg-gray-50 text-sm whitespace-nowrap" id="downloadBtn">
+                        <i class="ri-download-line"></i>
+                        <span>Download Statement</span>
+                    </button>
+                    <button class="flex items-center space-x-2 bg-primary text-white px-3 py-1.5 rounded !rounded-button hover:bg-primary/90 text-sm whitespace-nowrap" id="makePaymentBtn">
+                        <i class="ri-bank-card-line"></i>
+                        <span>Make a Payment</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+        <div class="p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <div class="bg-white rounded-lg shadow-sm border p-5">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">Current Balance</h3>
+                        <span class="text-sm text-gray-500">Spring 2025</span>
+                    </div>
+                    <div class="flex items-end space-x-1 mb-2">
+                        <span class="text-3xl font-bold text-gray-900">$4,250.00</span>
+                        <span class="text-sm text-gray-500 mb-1">USD</span>
+                    </div>
+                    <div class="flex items-center mb-4">
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-primary h-2.5 rounded-full" style="width: 65%"></div>
+                        </div>
+                        <span class="ml-2 text-sm text-gray-600">65%</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Paid: $7,875.00</span>
+                        <span class="text-gray-600">Total: $12,125.00</span>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-sm border p-5">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">Next Payment Due</h3>
+                        <span class="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">Due Soon</span>
+                    </div>
+                    <div class="flex items-end space-x-1 mb-2">
+                        <span class="text-3xl font-bold text-gray-900">$1,416.67</span>
+                        <span class="text-sm text-gray-500 mb-1">USD</span>
+                    </div>
+                    <div class="flex items-center text-sm text-gray-600 mb-4">
+                        <i class="ri-calendar-line mr-1"></i>
+                        <span>Due on May 15, 2025</span>
+                        <span class="ml-2 text-yellow-600">(13 days left)</span>
+                    </div>
+                    <button class="w-full bg-primary text-white py-2 rounded !rounded-button hover:bg-primary/90 whitespace-nowrap">
+                        Pay Now
+                    </button>
+                </div>
+                <div class="bg-white rounded-lg shadow-sm border p-5">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">Payment Plan</h3>
+                        <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Active</span>
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-gray-600">Plan Type:</span>
+                            <span class="font-medium text-gray-800">Monthly Installments</span>
+                        </div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-gray-600">Monthly Amount:</span>
+                            <span class="font-medium text-gray-800">$1,416.67</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Remaining Payments:</span>
+                            <span class="font-medium text-gray-800">3 of 6</span>
+                        </div>
+                    </div>
+                    <button class="w-full border border-gray-300 text-gray-700 py-2 rounded !rounded-button hover:bg-gray-50 whitespace-nowrap">
+                        Manage Plan
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
+                    <div class="p-5 border-b">
+                        <h3 class="text-lg font-semibold text-gray-800">Payment Activity</h3>
+                    </div>
+                    <div class="p-5">
+                        <div id="paymentChart" style="width: 100%; height: 300px;"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
+                    <div class="p-5 border-b flex justify-between items-center flex-wrap gap-4">
+                        <h3 class="text-lg font-semibold text-gray-800">Transaction History</h3>
+                        <div class="flex items-center space-x-3">
+                            <div class="relative" id="dateFilterContainer">
+                                <button class="flex items-center space-x-2 bg-white border border-gray-300 text-gray-700 px-3 py-1.5 rounded !rounded-button hover:bg-gray-50 text-sm whitespace-nowrap" id="dateFilterBtn">
+                                    <i class="ri-calendar-line"></i>
+                                    <span>All Time</span>
+                                    <i class="ri-arrow-down-s-line"></i>
+                                </button>
+                                <div class="date-range-dropdown bg-white shadow-lg rounded border border-gray-200 w-64 p-3">
+                                    <div class="mb-3">
+                                        <h4 class="font-medium text-gray-700 mb-2">Date Range</h4>
+                                        <div class="space-y-2">
+                                            <label class="flex items-center">
+                                                <input type="radio" name="dateRange" value="all" checked class="mr-2">
+                                                <span class="text-sm">All Time</span>
+                                            </label>
+                                            <label class="flex items-center">
+                                                <input type="radio" name="dateRange" value="current" class="mr-2">
+                                                <span class="text-sm">Current Semester</span>
+                                            </label>
+                                            <label class="flex items-center">
+                                                <input type="radio" name="dateRange" value="last3" class="mr-2">
+                                                <span class="text-sm">Last 3 Months</span>
+                                            </label>
+                                            <label class="flex items-center">
+                                                <input type="radio" name="dateRange" value="custom" class="mr-2">
+                                                <span class="text-sm">Custom Range</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="pt-3 border-t flex justify-end">
+                                        <button class="bg-primary text-white px-3 py-1.5 rounded !rounded-button hover:bg-primary/90 text-sm whitespace-nowrap">
+                                            Apply
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="relative">
+                                <button class="flex items-center space-x-2 bg-white border border-gray-300 text-gray-700 px-3 py-1.5 rounded !rounded-button hover:bg-gray-50 text-sm whitespace-nowrap" id="statusFilterBtn">
+                                    <i class="ri-filter-3-line"></i>
+                                    <span>All Status</span>
+                                    <i class="ri-arrow-down-s-line"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-[1024px]">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Method</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr class="hover:bg-gray-50">
+                                    <td class="py-3 px-4 text-sm text-gray-700">Apr 15, 2025</td>
+                                    <td class="py-3 px-4 text-sm text-gray-700">Tuition Payment - Spring 2025</td>
+                                    <td class="py-3 px-4 text-sm text-gray-700">
+                                        <div class="flex items-center">
+                                            <div class="w-6 h-6 flex items-center justify-center mr-2">
+                                                <i class="ri-bank-card-fill text-blue-600"></i>
+                                            </div>
+                                            <span>Visa ending in 4242</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-4 text-sm font-medium text-gray-900">$1,416.67</td>
+                                    <td class="py-3 px-4">
+                                        <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Completed</span>
+                                    </td>
+                                    <td class="py-3 px-4 text-sm">
+                                        <button class="text-primary hover:text-primary/80">Receipt</button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="py-3 px-4 text-sm text-gray-700">Mar 15, 2025</td>
+                                    <td class="py-3 px-4 text-sm text-gray-700">Tuition Payment - Spring 2025</td>
+                                    <td class="py-3 px-4 text-sm text-gray-700">
+                                        <div class="flex items-center">
+                                            <div class="w-6 h-6 flex items-center justify-center mr-2">
+                                                <i class="ri-bank-card-fill text-blue-600"></i>
+                                            </div>
+                                            <span>Visa ending in 4242</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-4 text-sm font-medium text-gray-900">$1,416.67</td>
+                                    <td class="py-3 px-4">
+                                        <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Completed</span>
+                                    </td>
+                                    <td class="py-3 px-4 text-sm">
+                                        <button class="text-primary hover:text-primary/80">Receipt</button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="py-3 px-4 text-sm text-gray-700">Feb 15, 2025</td>
+                                    <td class="py-3 px-4 text-sm text-gray-700">Tuition Payment - Spring 2025</td>
+                                    <td class="py-3 px-4 text-sm text-gray-700">
+                                        <div class="flex items-center">
+                                            <div class="w-6 h-6 flex items-center justify-center mr-2">
+                                                <i class="ri-bank-card-fill text-blue-600"></i>
+                                            </div>
+                                            <span>Visa ending in 4242</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-4 text-sm font-medium text-gray-900">$1,416.67</td>
+                                    <td class="py-3 px-4">
+                                        <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Completed</span>
+                                    </td>
+                                    <td class="py-3 px-4 text-sm">
+                                        <button class="text-primary hover:text-primary/80">Receipt</button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="py-3 px-4 text-sm text-gray-700">Jan 15, 2025</td>
+                                    <td class="py-3 px-4 text-sm text-gray-700">Tuition Payment - Spring 2025</td>
+                                    <td class="py-3 px-4 text-sm text-gray-700">
+                                        <div class="flex items-center">
+                                            <div class="w-6 h-6 flex items-center justify-center mr-2">
+                                                <i class="ri-bank-card-fill text-blue-600"></i>
+                                            </div>
+                                            <span>Visa ending in 4242</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-4 text-sm font-medium text-gray-900">$1,416.67</td>
+                                    <td class="py-3 px-4">
+                                        <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Completed</span>
+                                    </td>
+                                    <td class="py-3 px-4 text-sm">
+                                        <button class="text-primary hover:text-primary/80">Receipt</button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="py-3 px-4 text-sm text-gray-700">Dec 15, 2024</td>
+                                    <td class="py-3 px-4 text-sm text-gray-700">Tuition Payment - Fall 2024</td>
+                                    <td class="py-3 px-4 text-sm text-gray-700">
+                                        <div class="flex items-center">
+                                            <div class="w-6 h-6 flex items-center justify-center mr-2">
+                                                <i class="ri-paypal-fill text-blue-700"></i>
+                                            </div>
+                                            <span>PayPal</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-4 text-sm font-medium text-gray-900">$2,208.33</td>
+                                    <td class="py-3 px-4">
+                                        <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Completed</span>
+                                    </td>
+                                    <td class="py-3 px-4 text-sm">
+                                        <button class="text-primary hover:text-primary/80">Receipt</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="p-4 border-t flex items-center justify-between">
+                        <div class="text-sm text-gray-600">
+                            Showing 5 of 12 transactions
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-full disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                <i class="ri-arrow-left-s-line"></i>
+                            </button>
+                            <button class="w-8 h-8 flex items-center justify-center text-white bg-primary rounded-full">
+                                1
+                            </button>
+                            <button class="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-full">
+                                2
+                            </button>
+                            <button class="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-full">
+                                3
+                            </button>
+                            <button class="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-full">
+                                <i class="ri-arrow-right-s-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
+                        <div class="p-5 border-b">
+                            <h3 class="text-lg font-semibold text-gray-800">Tuition Breakdown</h3>
+                        </div>
+                        <div class="p-5">
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-center pb-3 border-b">
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">Tuition Fees</h4>
+                                        <p class="text-sm text-gray-600">Base tuition for 15 credit hours</p>
+                                    </div>
+                                    <span class="font-medium text-gray-900">$9,750.00</span>
+                                </div>
+                                <div class="flex justify-between items-center pb-3 border-b">
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">Technology Fee</h4>
+                                        <p class="text-sm text-gray-600">Campus technology services</p>
+                                    </div>
+                                    <span class="font-medium text-gray-900">$450.00</span>
+                                </div>
+                                <div class="flex justify-between items-center pb-3 border-b">
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">Student Activity Fee</h4>
+                                        <p class="text-sm text-gray-600">Campus activities and services</p>
+                                    </div>
+                                    <span class="font-medium text-gray-900">$325.00</span>
+                                </div>
+                                <div class="flex justify-between items-center pb-3 border-b">
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">Health Services Fee</h4>
+                                        <p class="text-sm text-gray-600">Campus health center access</p>
+                                    </div>
+                                    <span class="font-medium text-gray-900">$275.00</span>
+                                </div>
+                                <div class="flex justify-between items-center pb-3 border-b">
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">Lab Fees</h4>
+                                        <p class="text-sm text-gray-600">Science and computer lab access</p>
+                                    </div>
+                                    <span class="font-medium text-gray-900">$325.00</span>
+                                </div>
+                                <div class="flex justify-between items-center pb-3 border-b">
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">Financial Aid</h4>
+                                        <p class="text-sm text-gray-600">Academic Merit Scholarship</p>
+                                    </div>
+                                    <span class="font-medium text-green-600">-$1,000.00</span>
+                                </div>
+                                <div class="flex justify-between items-center pt-2">
+                                    <h4 class="font-semibold text-gray-800">Total Tuition & Fees</h4>
+                                    <span class="font-semibold text-gray-900">$12,125.00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
+                        <div class="p-5 border-b">
+                            <h3 class="text-lg font-semibold text-gray-800">Payment Methods</h3>
+                        </div>
+                        <div class="p-5">
+                            <div class="space-y-3 mb-5">
+                                <div class="border rounded p-3 flex justify-between items-center">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 flex items-center justify-center mr-3 bg-blue-100 rounded">
+                                            <i class="ri-bank-card-fill text-blue-600 ri-lg"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-medium text-gray-800">Visa ending in 4242</h4>
+                                            <p class="text-xs text-gray-500">Expires 09/2027</p>
+                                        </div>
+                                    </div>
+                                    <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Default</span>
+                                </div>
+                                <div class="border rounded p-3 flex justify-between items-center">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 flex items-center justify-center mr-3 bg-blue-100 rounded">
+                                            <i class="ri-paypal-fill text-blue-700 ri-lg"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-medium text-gray-800">PayPal</h4>
+                                            <p class="text-xs text-gray-500">sarah.anderson@example.com</p>
+                                        </div>
+                                    </div>
+                                    <button class="text-sm text-primary hover:text-primary/80">Set Default</button>
+                                </div>
+                            </div>
+                            <button class="flex items-center justify-center w-full border border-dashed border-gray-300 text-gray-700 py-2 rounded !rounded-button hover:bg-gray-50 whitespace-nowrap">
+                                <i class="ri-add-line mr-2"></i>
+                                <span>Add Payment Method</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Make Payment Modal -->
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="paymentModal">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+            <div class="p-5 border-b flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800">Make a Payment</h3>
+                <button class="text-gray-500 hover:text-gray-700" id="closePaymentModal">
+                    <i class="ri-close-line ri-lg"></i>
+                </button>
+            </div>
+            <div class="p-5">
+                <div class="mb-5">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Payment Amount</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500">$</span>
+                        </div>
+                        <input type="number" class="w-full pl-8 pr-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" value="1416.67">
+                    </div>
+                </div>
+                <div class="mb-5">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
+                    <div class="space-y-3">
+                        <div>
+                            <input type="radio" name="paymentMethod" id="card1" class="payment-method-radio" checked>
+                            <label for="card1" class="payment-method-label border rounded p-3 flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 flex items-center justify-center mr-3 bg-blue-100 rounded">
+                                        <i class="ri-bank-card-fill text-blue-600 ri-lg"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">Visa ending in 4242</h4>
+                                        <p class="text-xs text-gray-500">Expires 09/2027</p>
+                                    </div>
+                                </div>
+                                <div class="w-6 h-6 flex items-center justify-center rounded-full border border-primary text-primary check-icon hidden">
+                                    <i class="ri-check-line"></i>
+                                </div>
+                            </label>
+                        </div>
+                        <div>
+                            <input type="radio" name="paymentMethod" id="paypal" class="payment-method-radio">
+                            <label for="paypal" class="payment-method-label border rounded p-3 flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 flex items-center justify-center mr-3 bg-blue-100 rounded">
+                                        <i class="ri-paypal-fill text-blue-700 ri-lg"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">PayPal</h4>
+                                        <p class="text-xs text-gray-500">sarah.anderson@example.com</p>
+                                    </div>
+                                </div>
+                                <div class="w-6 h-6 flex items-center justify-center rounded-full border border-primary text-primary check-icon hidden">
+                                    <i class="ri-check-line"></i>
+                                </div>
+                            </label>
+                        </div>
+                        <div>
+                            <input type="radio" name="paymentMethod" id="newCard" class="payment-method-radio">
+                            <label for="newCard" class="payment-method-label border border-dashed rounded p-3 flex justify-center items-center text-gray-600">
+                                <i class="ri-add-line mr-2"></i>
+                                <span>Add New Payment Method</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-5">
+                    <label class="flex items-center">
+                        <input type="checkbox" class="custom-checkbox mr-2">
+                        <span class="text-sm text-gray-700">Save this payment method for future payments</span>
+                    </label>
+                </div>
+                <div class="flex items-center justify-between pt-4 border-t">
+                    <button class="border border-gray-300 text-gray-700 px-4 py-2 rounded !rounded-button hover:bg-gray-50 whitespace-nowrap" id="cancelPayment">
+                        Cancel
+                    </button>
+                    <button class="bg-primary text-white px-4 py-2 rounded !rounded-button hover:bg-primary/90 whitespace-nowrap">
+                        Confirm Payment
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Menu toggle for mobile
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.querySelector('.sidebar');
+    
+    if (menuToggle && sidebar) {
+        menuToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+        });
+        
+        document.addEventListener('click', function(event) {
+            const isClickInside = sidebar.contains(event.target) || menuToggle.contains(event.target);
+            if (!isClickInside && window.innerWidth < 768 && sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+            }
+        });
+    }
+    
+    // Date filter dropdown
+    const dateFilterBtn = document.getElementById('dateFilterBtn');
+    const dateFilterContainer = document.getElementById('dateFilterContainer');
+    const dateRangeDropdown = document.querySelector('.date-range-dropdown');
+    
+    if (dateFilterBtn && dateRangeDropdown) {
+        dateFilterBtn.addEventListener('click', function() {
+            dateRangeDropdown.classList.toggle('active');
+        });
+        
+        document.addEventListener('click', function(event) {
+            const isClickInside = dateFilterContainer.contains(event.target);
+            if (!isClickInside && dateRangeDropdown.classList.contains('active')) {
+                dateRangeDropdown.classList.remove('active');
+            }
+        });
+    }
+    
+    // Payment modal
+    const makePaymentBtn = document.getElementById('makePaymentBtn');
+    const paymentModal = document.getElementById('paymentModal');
+    const closePaymentModal = document.getElementById('closePaymentModal');
+    const cancelPayment = document.getElementById('cancelPayment');
+    
+    if (makePaymentBtn && paymentModal && closePaymentModal && cancelPayment) {
+        makePaymentBtn.addEventListener('click', function() {
+            paymentModal.classList.remove('hidden');
+        });
+        
+        closePaymentModal.addEventListener('click', function() {
+            paymentModal.classList.add('hidden');
+        });
+        
+        cancelPayment.addEventListener('click', function() {
+            paymentModal.classList.add('hidden');
+        });
+        
+        paymentModal.addEventListener('click', function(event) {
+            if (event.target === paymentModal) {
+                paymentModal.classList.add('hidden');
+            }
+        });
+    }
+    
+    // Initialize payment chart
+    const chartDom = document.getElementById('paymentChart');
+    if (chartDom) {
+        const myChart = echarts.init(chartDom);
+        const option = {
+            animation: false,
+            tooltip: {
+                trigger: 'axis',
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                borderColor: '#e5e7eb',
+                borderWidth: 1,
+                textStyle: {
+                    color: '#1f2937'
+                }
+            },
+            legend: {
+                data: ['Payments', 'Balance'],
+                bottom: 0
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '15%',
+                top: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: ['Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                axisLine: {
+                    lineStyle: {
+                        color: '#e5e7eb'
+                    }
+                },
+                axisLabel: {
+                    color: '#1f2937'
+                }
+            },
+            yAxis: {
+                type: 'value',
+                axisLine: {
+                    show: false
+                },
+                axisLabel: {
+                    color: '#1f2937',
+                    formatter: '${value}'
+                },
+                splitLine: {
+                    lineStyle: {
+                        color: '#e5e7eb'
+                    }
+                }
+            },
+            series: [
+                {
+                    name: 'Payments',
+                    type: 'line',
+                    stack: 'Total',
+                    smooth: true,
+                    lineStyle: {
+                        width: 2,
+                        color: 'rgba(87, 181, 231, 1)'
+                    },
+                    areaStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            {
+                                offset: 0,
+                                color: 'rgba(87, 181, 231, 0.2)'
+                            },
+                            {
+                                offset: 1,
+                                color: 'rgba(87, 181, 231, 0.05)'
+                            }
+                        ])
+                    },
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: [2208.33, 1416.67, 1416.67, 1416.67, 1416.67, 0]
+                },
+                {
+                    name: 'Balance',
+                    type: 'line',
+                    stack: 'Total',
+                    smooth: true,
+                    lineStyle: {
+                        width: 2,
+                        color: 'rgba(251, 191, 114, 1)'
+                    },
+                    areaStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            {
+                                offset: 0,
+                                color: 'rgba(251, 191, 114, 0.2)'
+                            },
+                            {
+                                offset: 1,
+                                color: 'rgba(251, 191, 114, 0.05)'
+                            }
+                        ])
+                    },
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: [9916.67, 8500.00, 7083.33, 5666.67, 4250.00, 4250.00]
+                }
+            ]
+        };
+        myChart.setOption(option);
+        
+        window.addEventListener('resize', function() {
+            myChart.resize();
+        });
+    }
+});
+</script>
+</body>
+</html>

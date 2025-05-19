@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IDSC Portal - Class Schedules</title>
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script>tailwind.config={theme:{extend:{colors:{primary:'#2E7D32',secondary:'#43A047'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+<style>
+:where([class^="ri-"])::before { content: "\f3c2"; }
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8faf8;
+    min-height: 100vh;
+}
+.sidebar {
+    width: 280px;
+    transition: all 0.3s;
+}
+.main-content {
+    transition: all 0.3s;
+}
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+        position: fixed;
+        z-index: 40;
+    }
+    .sidebar.active {
+        transform: translateX(0);
+    }
+}
+.schedule-card {
+    transition: all 0.2s ease-in-out;
+}
+.schedule-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+.time-slot {
+    min-height: 100px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+.time-slot:hover {
+    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08);
+}
+.day-header {
+    min-width: 180px;
+}
+.time-indicator {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #ef4444;
+    z-index: 10;
+}
+.calendar-day.today {
+    background-color: #f0f9f0;
+    border-color: #2E7D32;
+}
+.calendar-day.selected {
+    background-color: #2E7D32;
+    color: white;
+}
+.calendar-day:hover:not(.selected):not(.inactive) {
+    background-color: #e8f5e9;
+}
+.calendar-day.inactive {
+    color: #d1d5db;
+}
+</style>
+</head>
+<body class="bg-gray-50">
+<div class="min-h-screen flex">
+    <aside class="sidebar bg-white shadow-lg flex flex-col h-screen fixed">
+        <div class="p-6 border-b">
+            <h2 class="font-['Pacifico'] text-2xl text-primary text-center">IDSC</h2>
+        </div>
+        <div class="p-4 border-b bg-gray-50">
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white">
+                    <i class="ri-user-line ri-lg"></i>
+                </div>
+                <div>
+                    <h3 class="font-medium text-gray-800">Mark Mendoza</h3>
+                    <p class="text-sm text-gray-500">Student ID: 23-285</p>
+                </div>
+            </div>
+        </div>
+        <nav class="flex-1 p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="student-dashboard.html" data-readdy="true" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-dashboard-line"></i>
+                        </div>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="Student-Classes.html" data-readdy="true" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-book-open-line"></i>
+                        </div>
+                        <span>My Classes</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="Student-Grades.html" data-readdy="true" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-medal-line"></i>
+                        </div>
+                        <span>Grades</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded bg-primary text-white">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-calendar-line"></i>
+                        </div>
+                        <span>Schedule</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="Student-Payments.html" data-readdy="true" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-money-dollar-circle-line"></i>
+                        </div>
+                        <span>Payments</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="p-4 border-t">
+            <a href="Index.html"><button class="flex items-center justify-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 rounded !rounded-button">
+                <i class="ri-logout-box-line mr-2"></i>
+                <span>Sign Out</span>
+            </button></a>
+        </div>
+    </aside>
+    <main class="main-content flex-1 ml-[280px]">
+        <header class="bg-white shadow-sm border-b">
+            <div class="flex items-center justify-between px-6 py-4">
+                <button class="md:hidden w-8 h-8 flex items-center justify-center text-gray-500" id="menuToggle">
+                    <i class="ri-menu-line ri-lg"></i>
+                </button>
+                <div class="flex items-center space-x-3">
+                    <h1 class="text-xl font-semibold text-gray-800">Class Schedule</h1>
+                    <span class="px-2 py-1 text-sm bg-green-100 text-primary rounded">Spring 2025</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-full relative">
+                        <i class="ri-notification-3-line"></i>
+                        <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                    </button>
+                    <button class="md:hidden w-8 h-8 flex items-center justify-center text-gray-500">
+                        <i class="ri-user-line"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="border-t px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center space-x-3">
+                    <a href="#" class="flex items-center space-x-2 text-sm text-gray-700 hover:text-primary">
+                        <i class="ri-dashboard-line"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <span class="text-gray-400">/</span>
+                    <span class="text-sm text-primary">Schedule</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <div class="relative">
+                        <select class="appearance-none pl-3 pr-8 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white">
+                            <option>Spring 2025</option>
+                            <option>Fall 2024</option>
+                            <option>Spring 2024</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                            <i class="ri-arrow-down-s-line text-gray-400"></i>
+                        </div>
+                    </div>
+                    <button class="flex items-center space-x-2 bg-white border border-gray-300 text-gray-700 px-3 py-1.5 rounded !rounded-button hover:bg-gray-50 text-sm whitespace-nowrap">
+                        <i class="ri-download-line"></i>
+                        <span>Export</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+        <div class="p-6">
+            <div class="mb-6">
+                <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
+                    <div class="border-b">
+                        <div class="flex overflow-x-auto">
+                            <button class="px-6 py-4 text-primary border-b-2 border-primary font-medium whitespace-nowrap">
+                                <i class="ri-calendar-line mr-2"></i>
+                                Weekly View
+                            </button>
+                            <button class="px-6 py-4 text-gray-600 hover:text-gray-800 whitespace-nowrap">
+                                <i class="ri-calendar-todo-line mr-2"></i>
+                                Monthly View
+                            </button>
+                            <button class="px-6 py-4 text-gray-600 hover:text-gray-800 whitespace-nowrap">
+                                <i class="ri-list-check mr-2"></i>
+                                List View
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 border-b">
+                        <div class="flex flex-wrap items-center justify-between gap-4">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800">Weekly Schedule</h3>
+                                <p class="text-sm text-gray-500">May 2-8, 2025</p>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <button class="w-9 h-9 flex items-center justify-center rounded text-gray-500 hover:bg-gray-100">
+                                    <i class="ri-arrow-left-s-line ri-lg"></i>
+                                </button>
+                                <button class="px-4 py-1.5 border border-gray-300 rounded text-sm hover:bg-gray-50">
+                                    Today
+                                </button>
+                                <button class="w-9 h-9 flex items-center justify-center rounded text-gray-500 hover:bg-gray-100">
+                                    <i class="ri-arrow-right-s-line ri-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5">
+                        <div class="flex mb-5 overflow-x-auto">
+                            <div class="flex space-x-3">
+                                <button class="flex items-center px-3 py-1.5 bg-primary text-white rounded-full text-sm whitespace-nowrap">
+                                    <div class="w-3 h-3 rounded-full bg-white mr-2"></div>
+                                    All Classes
+                                </button>
+                                <button class="flex items-center px-3 py-1.5 bg-white border border-gray-300 text-gray-700 rounded-full text-sm whitespace-nowrap">
+                                    <div class="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
+                                    General Education
+                                </button>
+                                <button class="flex items-center px-3 py-1.5 bg-white border border-gray-300 text-gray-700 rounded-full text-sm whitespace-nowrap">
+                                    <div class="w-3 h-3 rounded-full bg-purple-500 mr-2"></div>
+                                    Major Subjects
+                                </button>
+                                <button class="flex items-center px-3 py-1.5 bg-white border border-gray-300 text-gray-700 rounded-full text-sm whitespace-nowrap">
+                                    <div class="w-3 h-3 rounded-full bg-amber-500 mr-2"></div>
+                                    Electives
+                                </button>
+                                <button class="flex items-center px-3 py-1.5 bg-white border border-gray-300 text-gray-700 rounded-full text-sm whitespace-nowrap">
+                                    <div class="w-3 h-3 rounded-full bg-pink-500 mr-2"></div>
+                                    Lab Sessions
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex">
+                <div class="flex-1 p-6 overflow-x-auto">
+                    <div class="bg-white rounded-lg shadow-sm border min-w-[1024px]">
+                        <div class="calendar-header bg-gray-50 border-b">
+                            <div class="p-3 text-sm font-medium text-gray-500 border-r">Time</div>
+                            <div class="p-3 text-sm font-medium text-center border-r">
+                                <div class="font-semibold text-gray-800">Mon</div>
+                                <div>May 2</div>
+                            </div>
+                            <div class="p-3 text-sm font-medium text-center border-r">
+                                <div class="font-semibold text-gray-800">Tue</div>
+                                <div>May 3</div>
+                            </div>
+                            <div class="p-3 text-sm font-medium text-center border-r">
+                                <div class="font-semibold text-gray-800">Wed</div>
+                                <div>May 4</div>
+                            </div>
+                            <div class="p-3 text-sm font-medium text-center border-r">
+                                <div class="font-semibold text-gray-800">Thu</div>
+                                <div>May 5</div>
+                            </div>
+                            <div class="p-3 text-sm font-medium text-center border-r">
+                                <div class="font-semibold text-gray-800">Fri</div>
+                                <div>May 6</div>
+                            </div>
+                            <div class="p-3 text-sm font-medium text-center border-r">
+                                <div class="font-semibold text-gray-800">Sat</div>
+                                <div>May 7</div>
+                            </div>
+                            <div class="p-3 text-sm font-medium text-center">
+                                <div class="font-semibold text-gray-800">Sun</div>
+                                <div>May 8</div>
+                            </div>
+                        </div>
+                        <div class="calendar-grid relative" style="height: 900px;">
+                            <!-- Time slots -->
+                            <div class="absolute left-0 top-0 w-[80px] h-full border-r">
+                                <div class="time-slot flex items-start justify-center pt-2 text-xs text-gray-500">7:00 AM</div>
+                                <div class="time-slot flex items-start justify-center pt-2 text-xs text-gray-500">8:00 AM</div>
+                                <div class="time-slot flex items-start justify-center pt-2 text-xs text-gray-500">9:00 AM</div>
+                                <div class="time-slot flex items-start justify-center pt-2 text-xs text-gray-500">10:00 AM</div>
+                                <div class="time-slot flex items-start justify-center pt-2 text-xs text-gray-500">11:00 AM</div>
+                                <div class="time-slot flex items-start justify-center pt-2 text-xs text-gray-500">12:00 PM</div>
+                                <div class="time-slot flex items-start justify-center pt-2 text-xs text-gray-500">1:00 PM</div>
+                                <div class="time-slot flex items-start justify-center pt-2 text-xs text-gray-500">2:00 PM</div>
+                                <div class="time-slot flex items-start justify-center pt-2 text-xs text-gray-500">3:00 PM</div>
+                                <div class="time-slot flex items-start justify-center pt-2 text-xs text-gray-500">4:00 PM</div>
+                                <div class="time-slot flex items-start justify-center pt-2 text-xs text-gray-500">5:00 PM</div>
+                                <div class="time-slot flex items-start justify-center pt-2 text-xs text-gray-500">6:00 PM</div>
+                                <div class="time-slot flex items-start justify-center pt-2 text-xs text-gray-500">7:00 PM</div>
+                                <div class="time-slot flex items-start justify-center pt-2 text-xs text-gray-500">8:00 PM</div>
+                            </div>
+                            
+                            <!-- Day columns -->
+                            <div class="absolute left-[80px] top-0 right-0 h-full grid grid-cols-7">
+                                <div class="border-r h-full relative">
+                                    <!-- Time grid lines -->
+                                    <div class="absolute top-0 left-0 w-full h-full">
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                    </div>
+                                </div>
+                                <div class="border-r h-full relative">
+                                    <!-- Time grid lines -->
+                                    <div class="absolute top-0 left-0 w-full h-full">
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                    </div>
+                                </div>
+                                <div class="border-r h-full relative">
+                                    <!-- Time grid lines -->
+                                    <div class="absolute top-0 left-0 w-full h-full">
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                    </div>
+                                </div>
+                                <div class="border-r h-full relative">
+                                    <!-- Time grid lines -->
+                                    <div class="absolute top-0 left-0 w-full h-full">
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                    </div>
+                                </div>
+                                <div class="border-r h-full relative">
+                                    <!-- Time grid lines -->
+                                    <div class="absolute top-0 left-0 w-full h-full">
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                    </div>
+                                </div>
+                                <div class="border-r h-full relative">
+                                    <!-- Time grid lines -->
+                                    <div class="absolute top-0 left-0 w-full h-full">
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                    </div>
+                                </div>
+                                <div class="h-full relative">
+                                    <!-- Time grid lines -->
+                                    <div class="absolute top-0 left-0 w-full h-full">
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                        <div class="time-slot border-b border-gray-100"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Course blocks -->
+                            <!-- Advanced Mathematics -->
+                            <div class="course-block bg-blue-100 border-l-4 border-blue-500 text-blue-800" style="left: calc(80px + 0 * ((100% - 80px) / 7)); top: 120px; width: calc((100% - 80px) / 7 - 8px); height: 90px; margin: 0 4px;">
+                                <div class="course-block-content">
+                                    <div>
+                                        <h4>Advanced Mathematics</h4>
+                                        <p>Dr. Robert Chen</p>
+                                    </div>
+                                    <p>Room 301, Science Building</p>
+                                </div>
+                            </div>
+                            <div class="course-block bg-blue-100 border-l-4 border-blue-500 text-blue-800" style="left: calc(80px + 2 * ((100% - 80px) / 7)); top: 120px; width: calc((100% - 80px) / 7 - 8px); height: 90px; margin: 0 4px;">
+                                <div class="course-block-content">
+                                    <div>
+                                        <h4>Advanced Mathematics</h4>
+                                        <p>Dr. Robert Chen</p>
+                                    </div>
+                                    <p>Room 301, Science Building</p>
+                                </div>
+                            </div>
+                            <div class="course-block bg-blue-100 border-l-4 border-blue-500 text-blue-800" style="left: calc(80px + 4 * ((100% - 80px) / 7)); top: 120px; width: calc((100% - 80px) / 7 - 8px); height: 90px; margin: 0 4px;">
+                                <div class="course-block-content">
+                                    <div>
+                                        <h4>Advanced Mathematics</h4>
+                                        <p>Dr. Robert Chen</p>
+                                    </div>
+                                    <p>Room 301, Science Building</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Computer Science -->
+                            <div class="course-block bg-purple-100 border-l-4 border-purple-500 text-purple-800" style="left: calc(80px + 1 * ((100% - 80px) / 7)); top: 240px; width: calc((100% - 80px) / 7 - 8px); height: 90px; margin: 0 4px;">
+                                <div class="course-block-content">
+                                    <div>
+                                        <h4>Computer Science</h4>
+                                        <p>Prof. Emily Johnson</p>
+                                    </div>
+                                    <p>Lab 2, Technology Center</p>
+                                </div>
+                            </div>
+                            <div class="course-block bg-purple-100 border-l-4 border-purple-500 text-purple-800" style="left: calc(80px + 3 * ((100% - 80px) / 7)); top: 240px; width: calc((100% - 80px) / 7 - 8px); height: 90px; margin: 0 4px;">
+                                <div class="course-block-content">
+                                    <div>
+                                        <h4>Computer Science</h4>
+                                        <p>Prof. Emily Johnson</p>
+                                    </div>
+                                    <p>Lab 2, Technology Center</p>
+                                </div>
+                            </div>
+                            
+                            <!-- English Literature -->
+                            <div class="course-block bg-amber-100 border-l-4 border-amber-500 text-amber-800" style="left: calc(80px + 0 * ((100% - 80px) / 7)); top: 420px; width: calc((100% - 80px) / 7 - 8px); height: 90px; margin: 0 4px;">
+                                <div class="course-block-content">
+                                    <div>
+                                        <h4>English Literature</h4>
+                                        <p>Dr. Michael Thompson</p>
+                                    </div>
+                                    <p>Room 205, Arts Building</p>
+                                </div>
+                            </div>
+                            <div class="course-block bg-amber-100 border-l-4 border-amber-500 text-amber-800" style="left: calc(80px + 2 * ((100% - 80px) / 7)); top: 420px; width: calc((100% - 80px) / 7 - 8px); height: 90px; margin: 0 4px;">
+                                <div class="course-block-content">
+                                    <div>
+                                        <h4>English Literature</h4>
+                                        <p>Dr. Michael Thompson</p>
+                                    </div>
+                                    <p>Room 205, Arts Building</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Introduction to Psychology -->
+                            <div class="course-block bg-rose-100 border-l-4 border-rose-500 text-rose-800" style="left: calc(80px + 1 * ((100% - 80px) / 7)); top: 360px; width: calc((100% - 80px) / 7 - 8px); height: 90px; margin: 0 4px;">
+                                <div class="course-block-content">
+                                    <div>
+                                        <h4>Introduction to Psychology</h4>
+                                        <p>Dr. Sophia Martinez</p>
+                                    </div>
+                                    <p>Room 105, Behavioral Sciences</p>
+                                </div>
+                            </div>
+                            <div class="course-block bg-rose-100 border-l-4 border-rose-500 text-rose-800" style="left: calc(80px + 3 * ((100% - 80px) / 7)); top: 360px; width: calc((100% - 80px) / 7 - 8px); height: 90px; margin: 0 4px;">
+                                <div class="course-block-content">
+                                    <div>
+                                        <h4>Introduction to Psychology</h4>
+                                        <p>Dr. Sophia Martinez</p>
+                                    </div>
+                                    <p>Room 105, Behavioral Sciences</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Physics for Engineers -->
+                            <div class="course-block bg-emerald-100 border-l-4 border-emerald-500 text-emerald-800" style="left: calc(80px + 0 * ((100% - 80px) / 7)); top: 210px; width: calc((100% - 80px) / 7 - 8px); height: 90px; margin: 0 4px;">
+                                <div class="course-block-content">
+                                    <div>
+                                        <h4>Physics for Engineers</h4>
+                                        <p>Prof. David Wilson</p>
+                                    </div>
+                                    <p>Lab 5, Engineering Building</p>
+                                </div>
+                            </div>
+                            <div class="course-block bg-emerald-100 border-l-4 border-emerald-500 text-emerald-800" style="left: calc(80px + 2 * ((100% - 80px) / 7)); top: 210px; width: calc((100% - 80px) / 7 - 8px); height: 90px; margin: 0 4px;">
+                                <div class="course-block-content">
+                                    <div>
+                                        <h4>Physics for Engineers</h4>
+                                        <p>Prof. David Wilson</p>
+                                    </div>
+                                    <p>Lab 5, Engineering Building</p>
+                                </div>
+                            </div>
+                            <div class="course-block bg-emerald-100 border-l-4 border-emerald-500 text-emerald-800" style="left: calc(80px + 4 * ((100% - 80px) / 7)); top: 210px; width: calc((100% - 80px) / 7 - 8px); height: 90px; margin: 0 4px;">
+                                <div class="course-block-content">
+                                    <div>
+                                        <h4>Physics for Engineers</h4>
+                                        <p>Prof. David Wilson</p>
+                                    </div>
+                                    <p>Lab 5, Engineering Building</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Business Economics -->
+                            <div class="course-block bg-cyan-100 border-l-4 border-cyan-500 text-cyan-800" style="left: calc(80px + 1 * ((100% - 80px) / 7)); top: 480px; width: calc((100% - 80px) / 7 - 8px); height: 90px; margin: 0 4px;">
+                                <div class="course-block-content">
+                                    <div>
+                                        <h4>Business Economics</h4>
+                                        <p>Dr. Jennifer Williams</p>
+                                    </div>
+                                    <p>Room 402, Business Building</p>
+                                </div>
+                            </div>
+                            <div class="course-block bg-cyan-100 border-l-4 border-cyan-500 text-cyan-800" style="left: calc(80px + 3 * ((100% - 80px) / 7)); top: 480px; width: calc((100% - 80px) / 7 - 8px); height: 90px; margin: 0 4px;">
+                                <div class="course-block-content">
+                                    <div>
+                                        <h4>Business Economics</h4>
+                                        <p>Dr. Jennifer Williams</p>
+                                    </div>
+                                    <p>Room 402, Business Building</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-80 bg-white border-l p-5 h-screen sticky top-0 right-0 transform transition-transform duration-300 translate-x-full" id="filterSidebar">
+                    <div class="flex justify-between items-center mb-5">
+                        <h3 class="font-semibold text-gray-800">Filters</h3>
+                        <button class="text-gray-500 hover:text-gray-700" id="closeFilter">
+                            <i class="ri-close-line ri-lg"></i>
+                        </button>
+                    </div>
+                    <div class="mb-6">
+                        <h4 class="font-medium text-gray-700 mb-3">Week Selection</h4>
+                        <div class="bg-gray-50 rounded p-3">
+                            <div class="flex justify-between items-center mb-2">
+                                <button class="text-gray-500 hover:text-gray-700">
+                                    <i class="ri-arrow-left-s-line"></i>
+                                </button>
+                                <span class="text-sm font-medium">May 2025</span>
+                                <button class="text-gray-500 hover:text-gray-700">
+                                    <i class="ri-arrow-right-s-line"></i>
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-7 gap-1 text-center text-xs">
+                                <div class="text-gray-500">S</div>
+                                <div class="text-gray-500">M</div>
+                                <div class="text-gray-500">T</div>
+                                <div class="text-gray-500">W</div>
+                                <div class="text-gray-500">T</div>
+                                <div class="text-gray-500">F</div>
+                                <div class="text-gray-500">S</div>
+                            </div>
+                            <div class="grid grid-cols-7 gap-1 text-center mt-1">
+                                <div class="text-gray-400 text-xs py-1">27</div>
+                                <div class="text-gray-400 text-xs py-1">28</div>
+                                <div class="text-gray-400 text-xs py-1">29</div>
+                                <div class="text-gray-400 text-xs py-1">30</div>
+                                <div class="text-gray-700 text-xs py-1">1</div>
+                                <div class="text-gray-700 text-xs py-1 bg-gray-200 rounded-sm">2</div>
+                                <div class="text-gray-700 text-xs py-1 bg-gray-200 rounded-sm">3</div>
+                                <div class="text-gray-700 text-xs py-1 bg-gray-200 rounded-sm">4</div>
+                                <div class="text-gray-700 text-xs py-1 bg-gray-200 rounded-sm">5</div>
+                                <div class="text-gray-700 text-xs py-1 bg-gray-200 rounded-sm">6</div>
+                                <div class="text-gray-700 text-xs py-1 bg-gray-200 rounded-sm">7</div>
+                                <div class="text-gray-700 text-xs py-1 bg-gray-200 rounded-sm">8</div>
+                                <div class="text-gray-700 text-xs py-1">9</div>
+                                <div class="text-gray-700 text-xs py-1">10</div>
+                                <div class="text-gray-700 text-xs py-1">11</div>
+                                <div class="text-gray-700 text-xs py-1">12</div>
+                                <div class="text-gray-700 text-xs py-1">13</div>
+                                <div class="text-gray-700 text-xs py-1">14</div>
+                                <div class="text-gray-700 text-xs py-1">15</div>
+                                <div class="text-gray-700 text-xs py-1">16</div>
+                                <div class="text-gray-700 text-xs py-1">17</div>
+                                <div class="text-gray-700 text-xs py-1">18</div>
+                                <div class="text-gray-700 text-xs py-1">19</div>
+                                <div class="text-gray-700 text-xs py-1">20</div>
+                                <div class="text-gray-700 text-xs py-1">21</div>
+                                <div class="text-gray-700 text-xs py-1">22</div>
+                                <div class="text-gray-700 text-xs py-1">23</div>
+                                <div class="text-gray-700 text-xs py-1">24</div>
+                                <div class="text-gray-700 text-xs py-1">25</div>
+                                <div class="text-gray-700 text-xs py-1">26</div>
+                                <div class="text-gray-700 text-xs py-1">27</div>
+                                <div class="text-gray-700 text-xs py-1">28</div>
+                                <div class="text-gray-700 text-xs py-1">29</div>
+                                <div class="text-gray-700 text-xs py-1">30</div>
+                                <div class="text-gray-700 text-xs py-1">31</div>
+                                <div class="text-gray-400 text-xs py-1">1</div>
+                                <div class="text-gray-400 text-xs py-1">2</div>
+                                <div class="text-gray-400 text-xs py-1">3</div>
+                                <div class="text-gray-400 text-xs py-1">4</div>
+                                <div class="text-gray-400 text-xs py-1">5</div>
+                                <div class="text-gray-400 text-xs py-1">6</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <h4 class="font-medium text-gray-700 mb-3">Courses</h4>
+                        <div class="space-y-2">
+                            <label class="flex items-center course-filter">
+                                <input type="checkbox" checked class="mr-2">
+                                <span class="w-3 h-3 rounded-full bg-blue-500 mr-2"></span>
+                                <span class="text-sm">Advanced Mathematics</span>
+                            </label>
+                            <label class="flex items-center course-filter">
+                                <input type="checkbox" checked class="mr-2">
+                                <span class="w-3 h-3 rounded-full bg-purple-500 mr-2"></span>
+                                <span class="text-sm">Computer Science</span>
+                            </label>
+                            <label class="flex items-center course-filter">
+                                <input type="checkbox" checked class="mr-2">
+                                <span class="w-3 h-3 rounded-full bg-amber-500 mr-2"></span>
+                                <span class="text-sm">English Literature</span>
+                            </label>
+                            <label class="flex items-center course-filter">
+                                <input type="checkbox" checked class="mr-2">
+                                <span class="w-3 h-3 rounded-full bg-rose-500 mr-2"></span>
+                                <span class="text-sm">Introduction to Psychology</span>
+                            </label>
+                            <label class="flex items-center course-filter">
+                                <input type="checkbox" checked class="mr-2">
+                                <span class="w-3 h-3 rounded-full bg-emerald-500 mr-2"></span>
+                                <span class="text-sm">Physics for Engineers</span>
+                            </label>
+                            <label class="flex items-center course-filter">
+                                <input type="checkbox" checked class="mr-2">
+                                <span class="w-3 h-3 rounded-full bg-cyan-500 mr-2"></span>
+                                <span class="text-sm">Business Economics</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <h4 class="font-medium text-gray-700 mb-3">View Preferences</h4>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-sm text-gray-600 mb-1 block">Time Range</label>
+                                <select class="w-full border border-gray-300 rounded p-2 text-sm pr-8">
+                                    <option>7:00 AM - 9:00 PM</option>
+                                    <option>8:00 AM - 6:00 PM</option>
+                                    <option>9:00 AM - 5:00 PM</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-600 mb-1 block">Display</label>
+                                <div class="flex space-x-2">
+                                    <button class="px-3 py-1.5 bg-primary text-white text-sm rounded !rounded-button whitespace-nowrap">All Classes</button>
+                                    <button class="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 text-sm rounded !rounded-button whitespace-nowrap">Only Labs</button>
+                                    <button class="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 text-sm rounded !rounded-button whitespace-nowrap">Only Lectures</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pt-4 border-t">
+                        <button class="w-full bg-primary text-white py-2 rounded !rounded-button hover:bg-primary/90 whitespace-nowrap">Apply Filters</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Month Calendar -->
+                <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
+                    <div class="p-5 border-b">
+                        <h3 class="text-lg font-semibold text-gray-800">May 2025</h3>
+                    </div>
+                    <div class="p-5">
+                        <div class="grid grid-cols-7 gap-1 text-center mb-2">
+                            <div class="text-sm font-medium text-gray-500">Sun</div>
+                            <div class="text-sm font-medium text-gray-500">Mon</div>
+                            <div class="text-sm font-medium text-gray-500">Tue</div>
+                            <div class="text-sm font-medium text-gray-500">Wed</div>
+                            <div class="text-sm font-medium text-gray-500">Thu</div>
+                            <div class="text-sm font-medium text-gray-500">Fri</div>
+                            <div class="text-sm font-medium text-gray-500">Sat</div>
+                        </div>
+                        <div class="grid grid-cols-7 gap-1 text-center">
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day inactive">27</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day inactive">28</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day inactive">29</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day inactive">30</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day">1</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day">2</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day">3</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day">4</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day">5</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day today">6</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day">7</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day">8</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day">9</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day">10</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day">11</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day">12</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day">13</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day">14</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day selected">15</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day">16</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day">17</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day">18</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day">19</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day">20</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day">21</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day">22</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day">23</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day">24</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day">25</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day">26</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day">27</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day">28</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day">29</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day">30</div>
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center text-sm calendar-day">31</div>
+                        </div>
+                    </div>
+                    <div class="p-4 border-t">
+                        <div class="flex space-x-4">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
+                                <span class="text-xs text-gray-600">General Ed</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 rounded-full bg-purple-500 mr-2"></div>
+                                <span class="text-xs text-gray-600">Major</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 rounded-full bg-pink-500 mr-2"></div>
+                                <span class="text-xs text-gray-600">Lab</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Class List -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
+                        <div class="p-5 border-b">
+                            <h3 class="text-lg font-semibold text-gray-800">Class List</h3>
+                        </div>
+                        <div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead>
+                                        <tr class="bg-gray-50">
+                                            <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                                            <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Schedule</th>
+                                            <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room</th>
+                                            <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Instructor</th>
+                                            <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Credits</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200">
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-3 px-4">
+                                                <div class="flex items-center">
+                                                    <div class="w-2 h-2 rounded-full bg-blue-500 mr-2"></div>
+                                                    <div>
+                                                        <div class="font-medium text-gray-900">Advanced Mathematics</div>
+                                                        <div class="text-xs text-gray-500">MATH 301</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="py-3 px-4 text-sm text-gray-700">Tue, Thu • 8:00 AM - 9:30 AM</td>
+                                            <td class="py-3 px-4 text-sm text-gray-700">Room 301, Science Building</td>
+                                            <td class="py-3 px-4 text-sm text-gray-700">Dr. Robert Chen</td>
+                                            <td class="py-3 px-4 text-sm text-gray-700">3</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-3 px-4">
+                                                <div class="flex items-center">
+                                                    <div class="w-2 h-2 rounded-full bg-purple-500 mr-2"></div>
+                                                    <div>
+                                                        <div class="font-medium text-gray-900">Computer Science</div>
+                                                        <div class="text-xs text-gray-500">CS 250</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="py-3 px-4 text-sm text-gray-700">Tue, Thu • 11:00 AM - 12:30 PM</td>
+                                            <td class="py-3 px-4 text-sm text-gray-700">Lab 2, Technology Center</td>
+                                            <td class="py-3 px-4 text-sm text-gray-700">Prof. Emily Johnson</td>
+                                            <td class="py-3 px-4 text-sm text-gray-700">4</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-3 px-4">
+                                                <div class="flex items-center">
+                                                    <div class="w-2 h-2 rounded-full bg-blue-500 mr-2"></div>
+                                                    <div>
+                                                        <div class="font-medium text-gray-900">English Literature</div>
+                                                        <div class="text-xs text-gray-500">ENG 215</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="py-3 px-4 text-sm text-gray-700">Wed, Fri • 2:30 PM - 4:00 PM</td>
+                                            <td class="py-3 px-4 text-sm text-gray-700">Room 205, Arts Building</td>
+                                            <td class="py-3 px-4 text-sm text-gray-700">Dr. Michael Thompson</td>
+                                            <td class="py-3 px-4 text-sm text-gray-700">3</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-3 px-4">
+                                                <div class="flex items-center">
+                                                    <div class="w-2 h-2 rounded-full bg-purple-500 mr-2"></div>
+                                                    <div>
+                                                        <div class="font-medium text-gray-900">Introduction to Psychology</div>
+                                                        <div class="text-xs text-gray-500">PSYC 101</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="py-3 px-4 text-sm text-gray-700">Tue, Thu • 4:00 PM - 5:30 PM</td>
+                                            <td class="py-3 px-4 text-sm text-gray-700">Room 105, Behavioral Sciences</td>
+                                            <td class="py-3 px-4 text-sm text-gray-700">Dr. Sophia Martinez</td>
+                                            <td class="py-3 px-4 text-sm text-gray-700">3</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-3 px-4">
+                                                <div class="flex items-center">
+                                                    <div class="w-2 h-2 rounded-full bg-pink-500 mr-2"></div>
+                                                    <div>
+                                                        <div class="font-medium text-gray-900">Physics for Engineers</div>
+                                                        <div class="text-xs text-gray-500">PHYS 205</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="py-3 px-4 text-sm text-gray-700">Mon, Wed, Fri • 1:00 PM - 2:30 PM</td>
+                                            <td class="py-3 px-4 text-sm text-gray-700">Lab 5, Engineering Building</td>
+                                            <td class="py-3 px-4 text-sm text-gray-700">Prof. David Wilson</td>
+                                            <td class="py-3 px-4 text-sm text-gray-700">4</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-3 px-4">
+                                                <div class="flex items-center">
+                                                    <div class="w-2 h-2 rounded-full bg-amber-500 mr-2"></div>
+                                                    <div>
+                                                        <div class="font-medium text-gray-900">Business Economics</div>
+                                                        <div class="text-xs text-gray-500">ECON 210</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="py-3 px-4 text-sm text-gray-700">Mon, Wed, Fri • 9:30 AM - 11:00 AM</td>
+                                            <td class="py-3 px-4 text-sm text-gray-700">Room 402, Business Building</td>
+                                            <td class="py-3 px-4 text-sm text-gray-700">Dr. Jennifer Williams</td>
+                                            <td class="py-3 px-4 text-sm text-gray-700">3</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="p-4 border-t flex items-center justify-between">
+                                <div class="text-sm text-gray-600">
+                                    Showing 6 of 6 classes
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <button class="flex items-center justify-center px-3 py-1 text-primary border border-primary rounded hover:bg-green-50 text-sm">
+                                        <i class="ri-printer-line mr-1"></i>
+                                        Print Schedule
+                                    </button>
+                                    <button class="flex items-center justify-center px-3 py-1 text-gray-600 border border-gray-300 rounded hover:bg-gray-50 text-sm">
+                                        <i class="ri-download-line mr-1"></i>
+                                        PDF
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.querySelector('.sidebar');
+    
+    menuToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('active');
+    });
+    
+    document.addEventListener('click', function(event) {
+        const isClickInside = sidebar.contains(event.target) || menuToggle.contains(event.target);
+        if (!isClickInside && window.innerWidth < 768 && sidebar.classList.contains('active')) {
+            sidebar.classList.remove('active');
+        }
+    });
+    
+    // Calendar day selection
+    const calendarDays = document.querySelectorAll('.calendar-day:not(.inactive)');
+    calendarDays.forEach(day => {
+        day.addEventListener('click', function() {
+            // Remove selected class from all days
+            calendarDays.forEach(d => d.classList.remove('selected'));
+            // Add selected class to clicked day
+            this.classList.add('selected');
+        });
+    });
+    
+    // Calculate current time indicator position
+    function updateTimeIndicator() {
+        const now = new Date();
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+        
+        // Only show the indicator during school hours (8am-6pm)
+        if (hours >= 8 && hours < 18) {
+            const timeIndicator = document.querySelector('.time-indicator');
+            if (timeIndicator) {
+                // Calculate position based on time
+                // Each hour block is 100px high, starting at 8am
+                const hoursSince8 = hours - 8;
+                const minutePercentage = minutes / 60;
+                const position = (hoursSince8 + minutePercentage) * 100;
+                
+                timeIndicator.style.top = position + 'px';
+                timeIndicator.style.display = 'block';
+            }
+        }
+    }
+    
+    // Update time indicator on page load
+    updateTimeIndicator();
+    
+    // Update time indicator every minute
+    setInterval(updateTimeIndicator, 60000);
+});
+</script>
+</body>
+</html>

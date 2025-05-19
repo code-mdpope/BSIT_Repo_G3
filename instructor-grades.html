@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IDSC Portal - Grade Management</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>tailwind.config={theme:{extend:{colors:{primary:'#2E7D32',secondary:'#43A047'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+    <style>
+        :where([class^="ri-"])::before { content: "\f3c2"; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8faf8;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 280px;
+            transition: all 0.3s;
+        }
+        .main-content {
+            transition: all 0.3s;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                z-index: 40;
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+        }
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e6e6e6;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background-color: #2E7D32;
+            transition: width 0.5s ease;
+        }
+        .tab-active {
+            color: #2E7D32;
+            border-bottom: 2px solid #2E7D32;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+<div class="min-h-screen flex">
+    <aside class="sidebar bg-white shadow-lg flex flex-col h-screen fixed">
+        <div class="p-6 border-b">
+            <h2 class="font-['Pacifico'] text-2xl text-primary text-center">IDSC</h2>
+        </div>
+        <div class="p-4 border-b bg-gray-50">
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white">
+                    <i class="ri-user-line ri-lg"></i>
+                </div>
+                <div>
+                    <h3 class="font-medium text-gray-800">Dr. Robert Chen</h3>
+                    <p class="text-sm text-gray-500">Instructor ID: INS-2025103</p>
+                </div>
+            </div>
+        </div>
+        <nav class="flex-1 p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="instructor-dashboard.html" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-dashboard-line"></i>
+                        </div>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="instructor-classes.html" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-book-open-line"></i>
+                        </div>
+                        <span>My Classes</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="instructor-students.html" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-user-star-line"></i>
+                        </div>
+                        <span>Students</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded bg-primary text-white">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-file-list-3-line"></i>
+                        </div>
+                        <span>Grade Management</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="instructor-announcements.html" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-megaphone-line"></i>
+                        </div>
+                        <span>Announcements</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="instructor-schedule.html" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-calendar-line"></i>
+                        </div>
+                        <span>Schedule</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="p-4 border-t">
+            <a href="Index.html"><button class="flex items-center justify-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 rounded !rounded-button">
+                <i class="ri-logout-box-line mr-2"></i>
+                <span>Sign Out</span>
+            </button></a>
+        </div>
+    </aside>
+
+    <main class="main-content flex-1 ml-[280px]">
+        <header class="bg-white shadow-sm border-b">
+            <div class="flex items-center justify-between px-6 py-4">
+                <button class="md:hidden w-8 h-8 flex items-center justify-center text-gray-500" id="menuToggle">
+                    <i class="ri-menu-line ri-lg"></i>
+                </button>
+                <div class="flex items-center space-x-3">
+                    <h1 class="text-xl font-semibold text-gray-800">Grade Management</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button class="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-full relative">
+                            <i class="ri-notification-3-line"></i>
+                            <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                        </button>
+                    </div>
+                    <button class="md:hidden w-8 h-8 flex items-center justify-center text-gray-500">
+                        <i class="ri-user-line"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="p-6">
+            <!-- Class Selection -->
+            <div class="bg-white rounded-lg shadow-sm border overflow-hidden mb-6">
+                <div class="p-5 border-b">
+                    <h3 class="text-lg font-semibold text-gray-800">Select Class</h3>
+                </div>
+                <div class="p-5">
+                    <div class="flex items-center space-x-4 flex-wrap">
+                        <select id="classSelect" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+                            <option value="">-- Select a class --</option>
+                            <option value="math350">MATH 350 - Mathematical Modeling</option>
+                            <option value="math320">MATH 320 - Differential Equations</option>
+                            <option value="math301">MATH 301 - Advanced Mathematics</option>
+                            <option value="math201">MATH 201 - Calculus I</option>
+                            <option value="stat315">STAT 315 - Statistics for Data Science</option>
+                        </select>
+                        <select id="termSelect" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+                            <option value="spring2025">Spring 2025</option>
+                            <option value="fall2024">Fall 2024</option>
+                            <option value="summer2024">Summer 2024</option>
+                            <option value="spring2024">Spring 2024</option>
+                        </select>
+                        <button class="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90">
+                            <i class="ri-filter-line mr-1"></i> Filter
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs for Grade Components -->
+            <div class="bg-white rounded-lg shadow-sm border overflow-hidden mb-6">
+                <div class="border-b flex">
+                    <button class="px-6 py-3 text-primary border-b-2 border-primary font-medium tab-active">
+                        Assignments
+                    </button>
+                    <button class="px-6 py-3 text-gray-600 font-medium hover:bg-gray-50">
+                        Exams
+                    </button>
+                    <button class="px-6 py-3 text-gray-600 font-medium hover:bg-gray-50">
+                        Projects
+                    </button>
+                    <button class="px-6 py-3 text-gray-600 font-medium hover:bg-gray-50">
+                        Participation
+                    </button>
+                    <button class="px-6 py-3 text-gray-600 font-medium hover:bg-gray-50">
+                        Final Grades
+                    </button>
+                </div>
+
+                <!-- Assignment Grades Content -->
+                <div id="assignmentsContent" class="p-5">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">Assignment Grades - MATH 350</h3>
+                        <div class="flex items-center space-x-2">
+                            <button class="bg-white text-primary border border-primary px-3 py-1.5 rounded hover:bg-green-50 text-sm">
+                                <i class="ri-add-line mr-1"></i> New Assignment
+                            </button>
+                            <button class="bg-white text-gray-700 border border-gray-300 px-3 py-1.5 rounded hover:bg-gray-50 text-sm">
+                                <i class="ri-upload-line mr-1"></i> Import
+                            </button>
+                            <button class="bg-white text-gray-700 border border-gray-300 px-3 py-1.5 rounded hover:bg-gray-50 text-sm">
+                                <i class="ri-download-line mr-1"></i> Export
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 border-b">
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
+                                    <th class="py-3 px-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Assignment 1<br><span class="font-normal lowercase">10 pts</span></th>
+                                    <th class="py-3 px-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Assignment 2<br><span class="font-normal lowercase">15 pts</span></th>
+                                    <th class="py-3 px-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Assignment 3<br><span class="font-normal lowercase">20 pts</span></th>
+                                    <th class="py-3 px-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Assignment 4<br><span class="font-normal lowercase">15 pts</span></th>
+                                    <th class="py-3 px-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Assignment 5<br><span class="font-normal lowercase">25 pts</span></th>
+                                    <th class="py-3 px-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Total<br><span class="font-normal lowercase">85 pts</span></th>
+                                    <th class="py-3 px-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Average<br><span class="font-normal lowercase">%</span></th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr class="hover:bg-gray-50">
+                                    <td class="py-3 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mr-3">
+                                                <i class="ri-user-line"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">Emily Johnson</div>
+                                                <div class="text-xs text-gray-500">STU-202587</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-4 text-center text-sm text-gray-800">9</td>
+                                    <td class="py-3 px-4 text-center text-sm text-gray-800">14</td>
+                                    <td class="py-3 px-4 text-center text-sm text-gray-800">18</td>
+                                    <td class="py-3 px-4 text-center text-sm text-gray-800">13</td>
+                                    <td class="py-3 px-4 text-center text-sm text-gray-800">22</td>
+                                    <td class="py-3 px-4 text-center text-sm font-medium text-gray-800">76</td>
+                                    <td class="py-3 px-4 text-center text-sm font-medium text-green-600">89.4%</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="py-3 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mr-3">
+                                                <i class="ri-user-line"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">Michael Zhang</div>
+                                                <div class="text-xs text-gray-500">STU-202432</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-4 text-center text-sm text-gray-800">10</td>
+                                    <td class="py-3 px-4 text-center text-sm text-gray-800">15</td>
+                                    <td class="py-3 px-4 text-center text-sm text-gray-800">19</td>
+                                    <td class="py-3 px-4 text-center text-sm text-gray-800">14</td>
+                                    <td class="py-3 px-4 text-center text-sm text-gray-800">24</td>
+                                    <td class="py-3 px-4 text-center text-sm font-medium text-gray-800">82</td>
+                                    <td class="py-3 px-4 text-center text-sm font-medium text-green-600">96.5%</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="py-3 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mr-3">
+                                                <i class="ri-user-line"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">Sophia Rodriguez</div>
+                                                <div class="text-xs text-gray-500">STU-202645</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-4 text-center text-sm text-gray-800">8</td>
+                                    <td class="py-3 px-4 text-center text-sm text-gray-800">12</td>
+                                    <td class="py-3 px-4 text-center text-sm text-gray-800">16</td>
+                                    <td class="py-3 px-4 text-center text-sm text-gray-800">11</td>
+                                    <td class="py-3 px-4 text-center text-sm text-gray-800">20</td>
+                                    <td class="py-3 px-4 text-center text-sm font-medium text-gray-800">67</td>
+                                    <td class="py-3 px-4 text-center text-sm font-medium text-yellow-600">78.8%</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="py-3 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mr-3">
+                                                <i class="ri-user-line"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">James Wilson</div>
+                                                <div class="text-xs text-gray-500">STU-202356</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-4 text-center text-sm text-gray-800">7</td>
+                                    <td class="py-3 px-4 text-center text-sm text-gray-800">11</td>
+                                    <td class="py-3 px-4 text-center text-sm text-gray-800">15</td>
+                                    <td class="py-3 px-4 text-center text-sm text-gray-800">10</td>
+                                    <td class="py-3 px-4 text-center text-sm text-gray-800">18</td>
+                                    <td class="py-3 px-4 text-center text-sm font-medium text-gray-800">61</td>
+                                    <td class="py-3 px-4 text-center text-sm font-medium text-red-600">71.8%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grade Distribution and Statistics -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Grade Distribution -->
+                <div class="lg:col-span-2 bg-white rounded-lg shadow-sm border overflow-hidden">
+                    <div class="p-5 border-b">
+                        <h3 class="text-lg font-semibold text-gray-800">Grade Distribution</h3>
+                    </div>
+                    <div class="p-5">
+                        <div id="gradeDistributionChart" style="width: 100%; height: 300px;"></div>
+                    </div>
+                </div>
+
+                <!-- Grade Statistics -->
+                <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
+                    <div class="p-5 border-b">
+                        <h3 class="text-lg font-semibold text-gray-800">Grade Statistics</h3>
+                    </div>
+                    <div class="p-5">
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Highest Grade</span>
+                                    <span class="text-sm font-semibold text-gray-800">96.5%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill bg-green-500" style="width: 96.5%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Class Average</span>
+                                    <span class="text-sm font-semibold text-gray-800">84.1%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill" style="width: 84.1%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Lowest Grade</span>
+                                    <span class="text-sm font-semibold text-gray-800">71.8%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill bg-red-500" style="width: 71.8%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="pt-4 border-t mt-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="text-center p-2 bg-gray-50 rounded">
+                                        <p class="text-sm text-gray-500">Median</p>
+                                        <p class="text-lg font-semibold text-gray-800">84.1%</p>
+                                    </div>
+                                    <div class="text-center p-2 bg-gray-50 rounded">
+                                        <p class="text-sm text-gray-500">Standard Deviation</p>
+                                        <p class="text-lg font-semibold text-gray-800">±10.3%</p>
+                                    </div>
+                                    <div class="text-center p-2 bg-gray-50 rounded">
+                                        <p class="text-sm text-gray-500">Pass Rate</p>
+                                        <p class="text-lg font-semibold text-green-600">88.9%</p>
+                                    </div>
+                                    <div class="text-center p-2 bg-gray-50 rounded">
+                                        <p class="text-sm text-gray-500">At Risk</p>
+                                        <p class="text-lg font-semibold text-red-600">11.1%</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.querySelector('.sidebar');
+        
+        if (menuToggle) {
+            menuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+            });
+        }
+        
+        document.addEventListener('click', function(event) {
+            const isClickInside = sidebar.contains(event.target) || (menuToggle && menuToggle.contains(event.target));
+            if (!isClickInside && window.innerWidth < 768 && sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+            }
+        });
+        
+        // Tab switching
+        const tabs = document.querySelectorAll('.border-b button');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs
+                tabs.forEach(t => {
+                    t.classList.remove('tab-active');
+                    t.classList.remove('text-primary');
+                    t.classList.remove('border-b-2');
+                    t.classList.remove('border-primary');
+                    t.classList.add('text-gray-600');
+                });
+                
+                // Add active class to clicked tab
+                this.classList.add('tab-active');
+                this.classList.add('text-primary');
+                this.classList.add('border-b-2');
+                this.classList.add('border-primary');
+                this.classList.remove('text-gray-600');
+            });
+        });
+        
+        // Grade Distribution Chart
+        const gradeDistributionDom = document.getElementById('gradeDistributionChart');
+        if (gradeDistributionDom) {
+            const gradeDistributionChart = echarts.init(gradeDistributionDom);
+            const gradeDistributionOption = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['<60%', '60-70%', '70-80%', '80-90%', '90-100%'],
+                    axisLabel: {
+                        color: '#6b7280'
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: {
+                        color: '#6b7280'
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: '#f3f4f6'
+                        }
+                    }
+                },
+                series: [
+                    {
+                        name: 'Students',
+                        type: 'bar',
+                        barWidth: '60%',
+                        data: [
+                            {value: 1, itemStyle: {color: '#ef4444'}},
+                            {value: 2, itemStyle: {color: '#f59e0b'}},
+                            {value: 5, itemStyle: {color: '#10b981'}},
+                            {value: 7, itemStyle: {color: '#3b82f6'}},
+                            {value: 3, itemStyle: {color: '#8b5cf6'}}
+                        ],
+                        label: {
+                            show: true,
+                            position: 'top',
+                            formatter: '{c}'
+                        }
+                    }
+                ]
+            };
+            gradeDistributionChart.setOption(gradeDistributionOption);
+            
+            window.addEventListener('resize', function() {
+                gradeDistributionChart.resize();
+            });
+        }
+    });
+</script>
+</body>
+</html> 

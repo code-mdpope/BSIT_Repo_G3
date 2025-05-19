@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IDSC Portal - Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>tailwind.config={theme:{extend:{colors:{primary:'#2E7D32',secondary:'#43A047'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+    <style>
+        :where([class^="ri-"])::before { content: "\f3c2"; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8faf8;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 280px;
+            transition: all 0.3s;
+        }
+        .main-content {
+            transition: all 0.3s;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                z-index: 40;
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+        }
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e6e6e6;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background-color: #2E7D32;
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+<div class="min-h-screen flex">
+    <aside class="sidebar bg-white shadow-lg flex flex-col h-screen fixed">
+        <div class="p-6 border-b">
+            <h2 class="font-['Pacifico'] text-2xl text-primary text-center">IDSC</h2>
+        </div>
+        <div class="p-4 border-b bg-gray-50">
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white">
+                    <i class="ri-admin-line ri-lg"></i>
+                </div>
+                <div>
+                    <h3 class="font-medium text-gray-800">Admin Portal</h3>
+                    <p class="text-sm text-gray-500">School Administration</p>
+                </div>
+            </div>
+        </div>
+        <nav class="flex-1 p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded bg-primary text-white">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-dashboard-line"></i>
+                        </div>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="admin-students.html" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-user-line"></i>
+                        </div>
+                        <span>Student Management</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="admin-instructors.html" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-user-star-line"></i>
+                        </div>
+                        <span>Instructors</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="admin-courses.html" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-book-open-line"></i>
+                        </div>
+                        <span>Course Management</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="admin-classes.html" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-calendar-line"></i>
+                        </div>
+                        <span>Class Scheduling</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="admin-payments.html" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-money-dollar-circle-line"></i>
+                        </div>
+                        <span>Payments & Fees</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="admin-reports.html" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-file-chart-line"></i>
+                        </div>
+                        <span>Reports</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="admin-settings.html" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-settings-line"></i>
+                        </div>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="p-4 border-t">
+            <a href="Index.html"><button class="flex items-center justify-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 rounded !rounded-button">
+                <i class="ri-logout-box-line mr-2"></i>
+                <span>Sign Out</span>
+            </button></a>
+        </div>
+    </aside>
+    
+    <main class="main-content flex-1 ml-[280px]">
+        <header class="bg-white shadow-sm border-b">
+            <div class="flex items-center justify-between px-6 py-4">
+                <button class="md:hidden w-8 h-8 flex items-center justify-center text-gray-500" id="menuToggle">
+                    <i class="ri-menu-line ri-lg"></i>
+                </button>
+                <div class="flex items-center space-x-3">
+                    <h1 class="text-xl font-semibold text-gray-800">Admin Dashboard</h1>
+                    <span class="px-2 py-1 text-sm bg-green-100 text-primary rounded">Spring 2025</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button class="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-full relative">
+                            <i class="ri-notification-3-line"></i>
+                            <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                        </button>
+                    </div>
+                    <button class="md:hidden w-8 h-8 flex items-center justify-center text-gray-500">
+                        <i class="ri-user-line"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="p-6">
+            <!-- Dashboard Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <!-- Students -->
+                <div class="bg-white rounded-lg shadow-sm p-6 border">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-semibold text-gray-800">Students</h3>
+                        <span class="text-sm text-gray-500">Total</span>
+                    </div>
+                    <div class="flex items-center space-x-3 text-gray-800">
+                        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                            <i class="ri-user-line text-blue-600 ri-lg"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-2xl">1,284</p>
+                            <p class="text-sm text-gray-500">+34 this semester</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Instructors -->
+                <div class="bg-white rounded-lg shadow-sm p-6 border">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-semibold text-gray-800">Instructors</h3>
+                        <span class="text-sm text-gray-500">Active</span>
+                    </div>
+                    <div class="flex items-center space-x-3 text-gray-800">
+                        <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
+                            <i class="ri-user-star-line text-purple-600 ri-lg"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-2xl">87</p>
+                            <p class="text-sm text-gray-500">Full-time & Adjunct</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Active Classes -->
+                <div class="bg-white rounded-lg shadow-sm p-6 border">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-semibold text-gray-800">Active Classes</h3>
+                        <span class="text-sm text-gray-500">Spring 2025</span>
+                    </div>
+                    <div class="flex items-center space-x-3 text-gray-800">
+                        <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                            <i class="ri-book-open-line text-green-600 ri-lg"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-2xl">142</p>
+                            <p class="text-sm text-gray-500">Across 35 courses</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Revenue -->
+                <div class="bg-white rounded-lg shadow-sm p-6 border">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-semibold text-gray-800">Revenue</h3>
+                        <span class="text-sm text-primary">View Report</span>
+                    </div>
+                    <div class="flex items-center space-x-3 text-gray-800">
+                        <div class="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
+                            <i class="ri-money-dollar-circle-line text-amber-600 ri-lg"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-2xl">$3.42M</p>
+                            <p class="text-sm text-green-500">+8.2% from last semester</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Content Area -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <!-- Enrollment Trends -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
+                        <div class="p-5 border-b flex justify-between items-center">
+                            <h3 class="text-lg font-semibold text-gray-800">Enrollment Trends</h3>
+                            <div class="flex space-x-2">
+                                <button class="text-sm text-gray-500 hover:text-primary px-2 py-1">By Month</button>
+                                <button class="text-sm text-primary border-b border-primary px-2 py-1">By Semester</button>
+                                <button class="text-sm text-gray-500 hover:text-primary px-2 py-1">Yearly</button>
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <div id="enrollmentChart" style="width: 100%; height: 300px;"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Activity -->
+                    <div class="bg-white rounded-lg shadow-sm border overflow-hidden mt-6">
+                        <div class="p-5 border-b">
+                            <h3 class="text-lg font-semibold text-gray-800">Recent Activity</h3>
+                        </div>
+                        <div class="divide-y">
+                            <div class="p-4 flex items-start">
+                                <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0 mr-4">
+                                    <i class="ri-user-add-line text-blue-600"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-start">
+                                        <h4 class="font-medium text-gray-800">New Student Registration</h4>
+                                        <span class="text-xs text-gray-500">30 min ago</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mt-1">5 new students registered for Fall 2025 semester</p>
+                                </div>
+                            </div>
+                            
+                            <div class="p-4 flex items-start">
+                                <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0 mr-4">
+                                    <i class="ri-money-dollar-circle-line text-green-600"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-start">
+                                        <h4 class="font-medium text-gray-800">Payment Received</h4>
+                                        <span class="text-xs text-gray-500">2 hours ago</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mt-1">$4,850 received for Spring 2025 tuition payments</p>
+                                </div>
+                            </div>
+                            
+                            <div class="p-4 flex items-start">
+                                <div class="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0 mr-4">
+                                    <i class="ri-calendar-event-line text-purple-600"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-start">
+                                        <h4 class="font-medium text-gray-800">Class Schedule Updated</h4>
+                                        <span class="text-xs text-gray-500">5 hours ago</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mt-1">Computer Science Department updated 3 class schedules</p>
+                                </div>
+                            </div>
+                            
+                            <div class="p-4 flex items-start">
+                                <div class="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0 mr-4">
+                                    <i class="ri-file-text-line text-amber-600"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-start">
+                                        <h4 class="font-medium text-gray-800">New Course Approved</h4>
+                                        <span class="text-xs text-gray-500">Yesterday</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mt-1">Curriculum committee approved "AI for Business" course</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 border-t bg-gray-50">
+                            <button class="text-primary hover:text-primary/80 text-sm font-medium">
+                                View All Activity
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Sidebar -->
+                <div>
+                    <!-- Department Stats -->
+                    <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
+                        <div class="p-5 border-b">
+                            <h3 class="text-lg font-semibold text-gray-800">Enrollment by Department</h3>
+                        </div>
+                        <div class="p-5">
+                            <div id="departmentChart" style="width: 100%; height: 250px;"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <div class="bg-white rounded-lg shadow-sm border overflow-hidden mt-6">
+                        <div class="p-5 border-b">
+                            <h3 class="text-lg font-semibold text-gray-800">Quick Actions</h3>
+                        </div>
+                        <div class="p-5 grid grid-cols-2 gap-3">
+                            <a href="#" class="flex flex-col items-center justify-center bg-gray-50 rounded-lg p-4 hover:bg-gray-100">
+                                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mb-2">
+                                    <i class="ri-user-add-line text-blue-600"></i>
+                                </div>
+                                <span class="text-sm font-medium text-gray-700">Add Student</span>
+                            </a>
+                            
+                            <a href="#" class="flex flex-col items-center justify-center bg-gray-50 rounded-lg p-4 hover:bg-gray-100">
+                                <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mb-2">
+                                    <i class="ri-user-star-line text-purple-600"></i>
+                                </div>
+                                <span class="text-sm font-medium text-gray-700">Add Instructor</span>
+                            </a>
+                            
+                            <a href="#" class="flex flex-col items-center justify-center bg-gray-50 rounded-lg p-4 hover:bg-gray-100">
+                                <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mb-2">
+                                    <i class="ri-book-open-line text-green-600"></i>
+                                </div>
+                                <span class="text-sm font-medium text-gray-700">Create Class</span>
+                            </a>
+                            
+                            <a href="#" class="flex flex-col items-center justify-center bg-gray-50 rounded-lg p-4 hover:bg-gray-100">
+                                <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center mb-2">
+                                    <i class="ri-file-chart-line text-amber-600"></i>
+                                </div>
+                                <span class="text-sm font-medium text-gray-700">Run Reports</span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- System Status -->
+                    <div class="bg-white rounded-lg shadow-sm border overflow-hidden mt-6">
+                        <div class="p-5 border-b">
+                            <h3 class="text-lg font-semibold text-gray-800">System Status</h3>
+                        </div>
+                        <div class="p-5">
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-medium text-gray-700">Database Storage</span>
+                                        <span class="text-sm font-semibold text-gray-800">68%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-bar-fill" style="width: 68%;"></div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-medium text-gray-700">API Status</span>
+                                        <span class="text-sm font-semibold text-green-600">Operational</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-bar-fill bg-green-500" style="width: 100%;"></div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-medium text-gray-700">Last Backup</span>
+                                        <span class="text-sm font-semibold text-gray-800">12 hours ago</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-bar-fill bg-blue-500" style="width: 50%;"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="pt-2">
+                                    <button class="text-primary hover:text-primary/80 text-sm font-medium">View Detailed System Status</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.querySelector('.sidebar');
+        
+        menuToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+        });
+        
+        document.addEventListener('click', function(event) {
+            const isClickInside = sidebar.contains(event.target) || menuToggle.contains(event.target);
+            if (!isClickInside && window.innerWidth < 768 && sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+            }
+        });
+        
+        // Enrollment Chart
+        const enrollmentChartDom = document.getElementById('enrollmentChart');
+        if (enrollmentChartDom) {
+            const enrollmentChart = echarts.init(enrollmentChartDom);
+            const enrollmentOption = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                legend: {
+                    data: ['Undergraduate', 'Graduate', 'Total'],
+                    bottom: 0
+                },
+                grid: {
+                    top: 20,
+                    right: 20,
+                    bottom: 60,
+                    left: 60
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['Fall 2023', 'Spring 2024', 'Summer 2024', 'Fall 2024', 'Spring 2025'],
+                    axisLine: {
+                        lineStyle: {
+                            color: '#e5e7eb'
+                        }
+                    },
+                    axisLabel: {
+                        color: '#6b7280'
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: {
+                        show: false
+                    },
+                    axisLabel: {
+                        color: '#6b7280'
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: '#f3f4f6'
+                        }
+                    }
+                },
+                series: [
+                    {
+                        name: 'Undergraduate',
+                        type: 'bar',
+                        stack: 'total',
+                        data: [720, 732, 501, 834, 890],
+                        itemStyle: {
+                            color: '#4ade80'
+                        }
+                    },
+                    {
+                        name: 'Graduate',
+                        type: 'bar',
+                        stack: 'total',
+                        data: [320, 332, 301, 334, 390],
+                        itemStyle: {
+                            color: '#60a5fa'
+                        }
+                    },
+                    {
+                        name: 'Total',
+                        type: 'line',
+                        data: [1040, 1064, 802, 1168, 1280],
+                        symbolSize: 8,
+                        itemStyle: {
+                            color: '#8b5cf6'
+                        },
+                        lineStyle: {
+                            width: 3,
+                            color: '#8b5cf6'
+                        }
+                    }
+                ]
+            };
+            enrollmentChart.setOption(enrollmentOption);
+            
+            window.addEventListener('resize', function() {
+                enrollmentChart.resize();
+            });
+        }
+        
+        // Department Chart
+        const departmentChartDom = document.getElementById('departmentChart');
+        if (departmentChartDom) {
+            const departmentChart = echarts.init(departmentChartDom);
+            const departmentOption = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b}: {c} ({d}%)'
+                },
+                series: [
+                    {
+                        name: 'Department',
+                        type: 'pie',
+                        radius: ['40%', '70%'],
+                        avoidLabelOverlap: false,
+                        itemStyle: {
+                            borderRadius: 4,
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        },
+                        label: {
+                            show: false
+                        },
+                        emphasis: {
+                            label: {
+                                show: true,
+                                fontSize: '12',
+                                fontWeight: 'bold'
+                            }
+                        },
+                        labelLine: {
+                            show: false
+                        },
+                        data: [
+                            { value: 335, name: 'Computer Science', itemStyle: { color: '#60a5fa' } },
+                            { value: 310, name: 'Business', itemStyle: { color: '#4ade80' } },
+                            { value: 234, name: 'Engineering', itemStyle: { color: '#8b5cf6' } },
+                            { value: 154, name: 'Mathematics', itemStyle: { color: '#f97316' } },
+                            { value: 251, name: 'Other Departments', itemStyle: { color: '#e879f9' } }
+                        ]
+                    }
+                ]
+            };
+            departmentChart.setOption(departmentOption);
+            
+            window.addEventListener('resize', function() {
+                departmentChart.resize();
+            });
+        }
+    });
+</script>
+</body>
+</html>

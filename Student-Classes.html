@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IDSC Portal - My Classes</title>
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script>tailwind.config={theme:{extend:{colors:{primary:'#2E7D32',secondary:'#43A047'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+<style>
+:where([class^="ri-"])::before { content: "\f3c2"; }
+body {
+font-family: 'Inter', sans-serif;
+background-color: #f8faf8;
+min-height: 100vh;
+}
+.sidebar {
+width: 280px;
+transition: all 0.3s;
+}
+.main-content {
+transition: all 0.3s;
+}
+@media (max-width: 768px) {
+.sidebar {
+transform: translateX(-100%);
+position: fixed;
+z-index: 40;
+}
+.sidebar.active {
+transform: translateX(0);
+}
+}
+.course-card {
+transition: all 0.2s ease-in-out;
+}
+.course-card:hover {
+transform: translateY(-4px);
+box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+.circular-progress {
+position: relative;
+height: 60px;
+width: 60px;
+border-radius: 50%;
+background: conic-gradient(#2E7D32 var(--progress), #e6e6e6 0deg);
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.circular-progress::before {
+content: "";
+position: absolute;
+height: 45px;
+width: 45px;
+border-radius: 50%;
+background-color: white;
+}
+.progress-value {
+position: relative;
+font-size: 16px;
+font-weight: 600;
+color: #2E7D32;
+}
+</style>
+</head>
+<body class="bg-gray-50">
+<div class="min-h-screen flex">
+<aside class="sidebar bg-white shadow-lg flex flex-col h-screen fixed">
+<div class="p-6 border-b">
+<h2 class="font-['Pacifico'] text-2xl text-primary text-center">IDSC</h2>
+</div>
+<div class="p-4 border-b bg-gray-50">
+<div class="flex items-center space-x-3">
+<div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white">
+<i class="ri-user-line ri-lg"></i>
+</div>
+<div>
+<h3 class="font-medium text-gray-800">Mark Mendoza</h3>
+<p class="text-sm text-gray-500">Student ID: ST2025001</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 p-4">
+<ul class="space-y-2">
+<li>
+<a href="student-dashboard.html" data-readdy="true" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+<div class="w-6 h-6 flex items-center justify-center">
+<i class="ri-dashboard-line"></i>
+</div>
+<span>Dashboard</span>
+</a>
+</li>
+<li>
+<a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded bg-primary text-white">
+<div class="w-6 h-6 flex items-center justify-center">
+<i class="ri-book-open-line"></i>
+</div>
+<span>My Classes</span>
+</a>
+</li>
+<li>
+<a href="Student-Grades.html" data-readdy="true" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+<div class="w-6 h-6 flex items-center justify-center">
+<i class="ri-medal-line"></i>
+</div>
+<span>Grades</span>
+</a>
+</li>
+<li>
+<a href="Student-Schedules.html" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+<div class="w-6 h-6 flex items-center justify-center">
+<i class="ri-calendar-line"></i>
+</div>
+<span>Schedule</span>
+</a>
+</li>
+<li>
+<a href="Student-Payments.html" class="flex items-center space-x-3 px-4 py-2.5 rounded text-gray-700 hover:bg-gray-100">
+<div class="w-6 h-6 flex items-center justify-center">
+<i class="ri-money-dollar-circle-line"></i>
+</div>
+<span>Payments</span>
+</a>
+</li>
+</ul>
+</nav>
+<div class="p-4 border-t">
+<a href="Index.html"><button class="flex items-center justify-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 rounded !rounded-button">
+<i class="ri-logout-box-line mr-2"></i>
+<span>Sign Out</span>
+</button></a>
+</div>
+</aside>
+<main class="main-content flex-1 ml-[280px]">
+<header class="bg-white shadow-sm border-b">
+<div class="flex items-center justify-between px-6 py-4">
+<button class="md:hidden w-8 h-8 flex items-center justify-center text-gray-500" id="menuToggle">
+<i class="ri-menu-line ri-lg"></i>
+</button>
+<div class="flex items-center space-x-3">
+<h1 class="text-xl font-semibold text-gray-800">My Classes</h1>
+<span class="px-2 py-1 text-sm bg-green-100 text-primary rounded">Spring 2025</span>
+</div>
+<div class="flex items-center space-x-4">
+<button class="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-full relative">
+<i class="ri-notification-3-line"></i>
+<span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+</button>
+<button class="md:hidden w-8 h-8 flex items-center justify-center text-gray-500">
+<i class="ri-user-line"></i>
+</button>
+</div>
+</div>
+</header>
+<div class="p-6">
+<div class="flex items-center justify-between mb-6">
+<div>
+<h2 class="text-xl font-semibold text-gray-800">Enrolled Courses</h2>
+<p class="text-sm text-gray-500">Spring Semester 2025 • 6 Courses • 18 Credit Hours</p>
+</div>
+<div class="flex space-x-3">
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<i class="ri-search-line text-gray-400"></i>
+</div>
+<input type="text" placeholder="Search courses" class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
+</div>
+<button class="flex items-center space-x-2 bg-primary text-white px-4 py-2 rounded !rounded-button hover:bg-primary/90 whitespace-nowrap">
+<i class="ri-filter-3-line"></i>
+<span>Filter</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Course 1 -->
+<div class="course-card bg-white rounded-lg shadow-sm border overflow-hidden">
+<div class="h-3 bg-primary"></div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-4">
+<h3 class="font-semibold text-gray-800 text-lg">Advanced Mathematics</h3>
+<div class="circular-progress" style="--progress: 270deg">
+<span class="progress-value">75%</span>
+</div>
+</div>
+<div class="space-y-3 mb-6">
+<div class="flex items-center text-gray-700">
+<div class="w-6 h-6 flex items-center justify-center mr-2">
+<i class="ri-user-line text-primary"></i>
+</div>
+<span>Dr. Robert Chen</span>
+</div>
+<div class="flex items-center text-gray-700">
+<div class="w-6 h-6 flex items-center justify-center mr-2">
+<i class="ri-time-line text-primary"></i>
+</div>
+<span>Mon, Wed, Fri • 9:00 AM - 10:30 AM</span>
+</div>
+<div class="flex items-center text-gray-700">
+<div class="w-6 h-6 flex items-center justify-center mr-2">
+<i class="ri-map-pin-line text-primary"></i>
+</div>
+<span>Room 301, Science Building</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<a href="#" class="flex items-center justify-center bg-primary text-white px-3 py-2 rounded !rounded-button hover:bg-primary/90 text-sm whitespace-nowrap">
+<i class="ri-file-list-3-line mr-1"></i>
+<span>View Details</span>
+</a>
+<a href="#" class="flex items-center justify-center bg-white text-primary border border-primary px-3 py-2 rounded !rounded-button hover:bg-green-50 text-sm whitespace-nowrap">
+<i class="ri-book-open-line mr-1"></i>
+<span>Materials</span>
+</a>
+<a href="#" class="flex items-center justify-center bg-white text-gray-700 border border-gray-300 px-3 py-2 rounded !rounded-button hover:bg-gray-50 text-sm whitespace-nowrap">
+<i class="ri-task-line mr-1"></i>
+<span>Assignments</span>
+</a>
+<a href="#" class="flex items-center justify-center bg-white text-gray-700 border border-gray-300 px-3 py-2 rounded !rounded-button hover:bg-gray-50 text-sm whitespace-nowrap">
+<i class="ri-chat-1-line mr-1"></i>
+<span>Contact</span>
+</a>
+</div>
+</div>
+</div>
+<!-- Course 2 -->
+<div class="course-card bg-white rounded-lg shadow-sm border overflow-hidden">
+<div class="h-3 bg-primary"></div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-4">
+<h3 class="font-semibold text-gray-800 text-lg">Computer Science</h3>
+<div class="circular-progress" style="--progress: 324deg">
+<span class="progress-value">90%</span>
+</div>
+</div>
+<div class="space-y-3 mb-6">
+<div class="flex items-center text-gray-700">
+<div class="w-6 h-6 flex items-center justify-center mr-2">
+<i class="ri-user-line text-primary"></i>
+</div>
+<span>Prof. Emily Johnson</span>
+</div>
+<div class="flex items-center text-gray-700">
+<div class="w-6 h-6 flex items-center justify-center mr-2">
+<i class="ri-time-line text-primary"></i>
+</div>
+<span>Tue, Thu • 11:00 AM - 12:30 PM</span>
+</div>
+<div class="flex items-center text-gray-700">
+<div class="w-6 h-6 flex items-center justify-center mr-2">
+<i class="ri-map-pin-line text-primary"></i>
+</div>
+<span>Lab 2, Technology Center</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<a href="#" class="flex items-center justify-center bg-primary text-white px-3 py-2 rounded !rounded-button hover:bg-primary/90 text-sm whitespace-nowrap">
+<i class="ri-file-list-3-line mr-1"></i>
+<span>View Details</span>
+</a>
+<a href="#" class="flex items-center justify-center bg-white text-primary border border-primary px-3 py-2 rounded !rounded-button hover:bg-green-50 text-sm whitespace-nowrap">
+<i class="ri-book-open-line mr-1"></i>
+<span>Materials</span>
+</a>
+<a href="#" class="flex items-center justify-center bg-white text-gray-700 border border-gray-300 px-3 py-2 rounded !rounded-button hover:bg-gray-50 text-sm whitespace-nowrap">
+<i class="ri-task-line mr-1"></i>
+<span>Assignments</span>
+</a>
+<a href="#" class="flex items-center justify-center bg-white text-gray-700 border border-gray-300 px-3 py-2 rounded !rounded-button hover:bg-gray-50 text-sm whitespace-nowrap">
+<i class="ri-chat-1-line mr-1"></i>
+<span>Contact</span>
+</a>
+</div>
+</div>
+</div>
+<!-- Course 3 -->
+<div class="course-card bg-white rounded-lg shadow-sm border overflow-hidden">
+<div class="h-3 bg-primary"></div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-4">
+<h3 class="font-semibold text-gray-800 text-lg">English Literature</h3>
+<div class="circular-progress" style="--progress: 288deg">
+<span class="progress-value">80%</span>
+</div>
+</div>
+<div class="space-y-3 mb-6">
+<div class="flex items-center text-gray-700">
+<div class="w-6 h-6 flex items-center justify-center mr-2">
+<i class="ri-user-line text-primary"></i>
+</div>
+<span>Dr. Michael Thompson</span>
+</div>
+<div class="flex items-center text-gray-700">
+<div class="w-6 h-6 flex items-center justify-center mr-2">
+<i class="ri-time-line text-primary"></i>
+</div>
+<span>Mon, Wed • 2:00 PM - 3:30 PM</span>
+</div>
+<div class="flex items-center text-gray-700">
+<div class="w-6 h-6 flex items-center justify-center mr-2">
+<i class="ri-map-pin-line text-primary"></i>
+</div>
+<span>Room 205, Arts Building</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<a href="#" class="flex items-center justify-center bg-primary text-white px-3 py-2 rounded !rounded-button hover:bg-primary/90 text-sm whitespace-nowrap">
+<i class="ri-file-list-3-line mr-1"></i>
+<span>View Details</span>
+</a>
+<a href="#" class="flex items-center justify-center bg-white text-primary border border-primary px-3 py-2 rounded !rounded-button hover:bg-green-50 text-sm whitespace-nowrap">
+<i class="ri-book-open-line mr-1"></i>
+<span>Materials</span>
+</a>
+<a href="#" class="flex items-center justify-center bg-white text-gray-700 border border-gray-300 px-3 py-2 rounded !rounded-button hover:bg-gray-50 text-sm whitespace-nowrap">
+<i class="ri-task-line mr-1"></i>
+<span>Assignments</span>
+</a>
+<a href="#" class="flex items-center justify-center bg-white text-gray-700 border border-gray-300 px-3 py-2 rounded !rounded-button hover:bg-gray-50 text-sm whitespace-nowrap">
+<i class="ri-chat-1-line mr-1"></i>
+<span>Contact</span>
+</a>
+</div>
+</div>
+</div>
+<!-- Course 4 -->
+<div class="course-card bg-white rounded-lg shadow-sm border overflow-hidden">
+<div class="h-3 bg-primary"></div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-4">
+<h3 class="font-semibold text-gray-800 text-lg">Introduction to Psychology</h3>
+<div class="circular-progress" style="--progress: 252deg">
+<span class="progress-value">70%</span>
+</div>
+</div>
+<div class="space-y-3 mb-6">
+<div class="flex items-center text-gray-700">
+<div class="w-6 h-6 flex items-center justify-center mr-2">
+<i class="ri-user-line text-primary"></i>
+</div>
+<span>Dr. Sophia Martinez</span>
+</div>
+<div class="flex items-center text-gray-700">
+<div class="w-6 h-6 flex items-center justify-center mr-2">
+<i class="ri-time-line text-primary"></i>
+</div>
+<span>Tue, Thu • 1:00 PM - 2:30 PM</span>
+</div>
+<div class="flex items-center text-gray-700">
+<div class="w-6 h-6 flex items-center justify-center mr-2">
+<i class="ri-map-pin-line text-primary"></i>
+</div>
+<span>Room 105, Behavioral Sciences</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<a href="#" class="flex items-center justify-center bg-primary text-white px-3 py-2 rounded !rounded-button hover:bg-primary/90 text-sm whitespace-nowrap">
+<i class="ri-file-list-3-line mr-1"></i>
+<span>View Details</span>
+</a>
+<a href="#" class="flex items-center justify-center bg-white text-primary border border-primary px-3 py-2 rounded !rounded-button hover:bg-green-50 text-sm whitespace-nowrap">
+<i class="ri-book-open-line mr-1"></i>
+<span>Materials</span>
+</a>
+<a href="#" class="flex items-center justify-center bg-white text-gray-700 border border-gray-300 px-3 py-2 rounded !rounded-button hover:bg-gray-50 text-sm whitespace-nowrap">
+<i class="ri-task-line mr-1"></i>
+<span>Assignments</span>
+</a>
+<a href="#" class="flex items-center justify-center bg-white text-gray-700 border border-gray-300 px-3 py-2 rounded !rounded-button hover:bg-gray-50 text-sm whitespace-nowrap">
+<i class="ri-chat-1-line mr-1"></i>
+<span>Contact</span>
+</a>
+</div>
+</div>
+</div>
+<!-- Course 5 -->
+<div class="course-card bg-white rounded-lg shadow-sm border overflow-hidden">
+<div class="h-3 bg-primary"></div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-4">
+<h3 class="font-semibold text-gray-800 text-lg">Physics for Engineers</h3>
+<div class="circular-progress" style="--progress: 306deg">
+<span class="progress-value">85%</span>
+</div>
+</div>
+<div class="space-y-3 mb-6">
+<div class="flex items-center text-gray-700">
+<div class="w-6 h-6 flex items-center justify-center mr-2">
+<i class="ri-user-line text-primary"></i>
+</div>
+<span>Prof. David Wilson</span>
+</div>
+<div class="flex items-center text-gray-700">
+<div class="w-6 h-6 flex items-center justify-center mr-2">
+<i class="ri-time-line text-primary"></i>
+</div>
+<span>Mon, Wed, Fri • 10:30 AM - 12:00 PM</span>
+</div>
+<div class="flex items-center text-gray-700">
+<div class="w-6 h-6 flex items-center justify-center mr-2">
+<i class="ri-map-pin-line text-primary"></i>
+</div>
+<span>Lab 5, Engineering Building</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<a href="#" class="flex items-center justify-center bg-primary text-white px-3 py-2 rounded !rounded-button hover:bg-primary/90 text-sm whitespace-nowrap">
+<i class="ri-file-list-3-line mr-1"></i>
+<span>View Details</span>
+</a>
+<a href="#" class="flex items-center justify-center bg-white text-primary border border-primary px-3 py-2 rounded !rounded-button hover:bg-green-50 text-sm whitespace-nowrap">
+<i class="ri-book-open-line mr-1"></i>
+<span>Materials</span>
+</a>
+<a href="#" class="flex items-center justify-center bg-white text-gray-700 border border-gray-300 px-3 py-2 rounded !rounded-button hover:bg-gray-50 text-sm whitespace-nowrap">
+<i class="ri-task-line mr-1"></i>
+<span>Assignments</span>
+</a>
+<a href="#" class="flex items-center justify-center bg-white text-gray-700 border border-gray-300 px-3 py-2 rounded !rounded-button hover:bg-gray-50 text-sm whitespace-nowrap">
+<i class="ri-chat-1-line mr-1"></i>
+<span>Contact</span>
+</a>
+</div>
+</div>
+</div>
+<!-- Course 6 -->
+<div class="course-card bg-white rounded-lg shadow-sm border overflow-hidden">
+<div class="h-3 bg-primary"></div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-4">
+<h3 class="font-semibold text-gray-800 text-lg">Business Economics</h3>
+<div class="circular-progress" style="--progress: 234deg">
+<span class="progress-value">65%</span>
+</div>
+</div>
+<div class="space-y-3 mb-6">
+<div class="flex items-center text-gray-700">
+<div class="w-6 h-6 flex items-center justify-center mr-2">
+<i class="ri-user-line text-primary"></i>
+</div>
+<span>Dr. Jennifer Williams</span>
+</div>
+<div class="flex items-center text-gray-700">
+<div class="w-6 h-6 flex items-center justify-center mr-2">
+<i class="ri-time-line text-primary"></i>
+</div>
+<span>Tue, Thu • 3:00 PM - 4:30 PM</span>
+</div>
+<div class="flex items-center text-gray-700">
+<div class="w-6 h-6 flex items-center justify-center mr-2">
+<i class="ri-map-pin-line text-primary"></i>
+</div>
+<span>Room 402, Business Building</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<a href="#" class="flex items-center justify-center bg-primary text-white px-3 py-2 rounded !rounded-button hover:bg-primary/90 text-sm whitespace-nowrap">
+<i class="ri-file-list-3-line mr-1"></i>
+<span>View Details</span>
+</a>
+<a href="#" class="flex items-center justify-center bg-white text-primary border border-primary px-3 py-2 rounded !rounded-button hover:bg-green-50 text-sm whitespace-nowrap">
+<i class="ri-book-open-line mr-1"></i>
+<span>Materials</span>
+</a>
+<a href="#" class="flex items-center justify-center bg-white text-gray-700 border border-gray-300 px-3 py-2 rounded !rounded-button hover:bg-gray-50 text-sm whitespace-nowrap">
+<i class="ri-task-line mr-1"></i>
+<span>Assignments</span>
+</a>
+<a href="#" class="flex items-center justify-center bg-white text-gray-700 border border-gray-300 px-3 py-2 rounded !rounded-button hover:bg-gray-50 text-sm whitespace-nowrap">
+<i class="ri-chat-1-line mr-1"></i>
+<span>Contact</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+const menuToggle = document.getElementById('menuToggle');
+const sidebar = document.querySelector('.sidebar');
+menuToggle.addEventListener('click', function() {
+sidebar.classList.toggle('active');
+});
+document.addEventListener('click', function(event) {
+const isClickInside = sidebar.contains(event.target) || menuToggle.contains(event.target);
+if (!isClickInside && window.innerWidth < 768 && sidebar.classList.contains('active')) {
+sidebar.classList.remove('active');
+}
+});
+});
+</script>
+</body>
+</html>
